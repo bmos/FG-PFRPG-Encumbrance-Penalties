@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!--
+  Please see the LICENSE.md file included with this distribution for attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="charsheet_inventory" merge="join">
+		<script file="campaign/scripts/char_inv_TE.lua" />
+		<sheetdata>
+	<!--Armor-->
+			<basicnumber name="armormaxstatbonus">
+				<hideonvalue>999</hideonvalue>
+				<default>999</default>
+				<min>0</min>
+				<max>999</max>
+				<script>
+					function onInit()
+						onValueChanged()
+					end
+
+					function onValueChanged()
+						local nMaxStat = DB.getValue(getDatabaseNode().getParent(), 'armormaxstatbonus')
+						local nMaxStatFromEnc = DB.getValue(getDatabaseNode().getParent(), 'maxstatbonusfromenc')
+						if window.usearmormaxstatbonus.getValue() == 0 then
+							window.armormaxstatbonus.setColor('7F000000')
+						else
+							if nMaxStatFromEnc == nMaxStat then
+								window.armormaxstatbonus.setColor('FFB22929')
+							else
+								window.armormaxstatbonus.setColor('FF000000')
+							end
+						end
+					end
+				</script>
+			</basicnumber>
+			<basicnumber name="armorcheckpenalty">
+				<hideonvalue>0</hideonvalue>
+				<max>0</max>
+				<script>
+					function onInit()
+						onValueChanged()
+					end
+
+					function onValueChanged()
+						local nCheckPenalty = DB.getValue(getDatabaseNode().getParent(), 'armorcheckpenalty')
+						local nCheckPenaltyFromEnc = DB.getValue(getDatabaseNode().getParent(), 'checkpenaltyfromenc')
+						if window.usearmormaxstatbonus.getValue() == 0 then
+							window.armorcheckpenalty.setColor('7F000000')
+						else
+							if nCheckPenaltyFromEnc == nCheckPenalty then
+								window.armorcheckpenalty.setColor('FFB22929')
+							else
+								window.armorcheckpenalty.setColor('FF000000')
+							end
+						end
+					end
+				</script>
+			</basicnumber>
+			<buttonfield name="usearmormaxstatbonus" source="encumbrance.armormaxstatbonusactive" insertbefore="encumbranceframe" merge="replace">
+				<anchored to="armorpenaltyframe" position="insidetopleft" offset="67,28" width="12" height="12" />
+				<state icon="button_checkoff" tooltipres="char_tooltip_armormodoff" />
+				<state icon="button_checkon" tooltipres="char_tooltip_armormodon" />
+				<script>
+					function onValueChanged()
+						window.armormaxstatbonus.onValueChanged()
+						window.armorcheckpenalty.onValueChanged()
+					end
+				</script>
+			</buttonfield>
+			<basicnumber name="spellfailure">
+				<hideonvalue>0</hideonvalue>
+				<min>0</min>
+				<max>100</max>
+			</basicnumber>
+
+	<!--Encumbrance Frame-->
+			<label name="encumbrance_label">
+				<anchored offset="15,16" />
+				<static textres="char_label_totalweight" />
+			</label>
+		</sheetdata>
+	</windowclass>
+
+	<!-- Encumbrance pop-up for strength score modification via effect or manual "str adj" box -->
+	<windowclass name="charsheet_encumbrance" merge="join">
+		<frame>charsheethelper</frame>
+		<placement>
+			<size width="300" height="135" />
+		</placement>
+		<sizelimits>
+			<minimum width="300" height="135" />
+			<maximum width="300" height="135" />
+			<dynamic />
+		</sizelimits>
+		<nodelete />
+		<playercontrol />
+		<sheetdata>
+			<windowtitlebar_char name="title">
+				<prefix>char_encumbrance_title</prefix>
+			</windowtitlebar_char>
+			<anchor_title_charsheethelper name="contentanchor" />
+
+			<frame_char name="encadjframe">
+				<anchored to="contentanchor" height="60">
+					<top anchor="bottom" relation="relative" offset="0" />
+					<left />
+					<right />
+				</anchored>
+			</frame_char>
+			<basicnumber name="encstradj" source="encumbrance.stradj">
+				<anchored to="encadjframe" width="60" height="20">
+					<top offset="25" />
+					<right anchor="center" offset="-50" />
+				</anchored>
+				<displaysign />
+			</basicnumber>
+			<label_fieldtop>
+				<anchored to="encstradj" />
+				<static textres="char_label_encstradj" />
+			</label_fieldtop>
+			<basicnumber name="encstr_fromeffects" source="encumbrance.strbonusfromeffects">
+				<anchored to="encadjframe" width="60" height="20">
+					<top offset="25" />
+					<right anchor="center" offset="30" />
+				</anchored>
+				<displaysign />
+				<readonly />
+			</basicnumber>
+			<label_fieldtop>
+				<anchored to="encstr_fromeffects" />
+				<static textres="char_label_encstr_fromeffects" />
+			</label_fieldtop>
+			<basicnumber name="enccarrymult" source="encumbrance.carrymult">
+				<anchored to="encadjframe" width="60" height="20">
+					<top offset="25" />
+					<left anchor="center" offset="50" />
+				</anchored>
+				<min>0</min>
+				<default>1</default>
+			</basicnumber>
+			<label_fieldtop>
+				<anchored to="enccarrymult" />
+				<static textres="char_label_enccarrymult" />
+			</label_fieldtop>
+
+			<close_charsheethelper />
+			<resize_charsheethelper />
+		</sheetdata>
+	</windowclass>
+</root>

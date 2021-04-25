@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- Please see the LICENSE.md file included with this distribution for attribution and copyright information. -->
+
+<root version='3.3' release='3'>
+	<properties>
+		<name>Encumbrance Penalties</name>
+		<version>1.0</version>
+		<author>bmos (Wil Thieme)</author>
+		<description>rThis extension applies encumbrance penalties, weighs PC coins, calculates character wealth, automates bypassing weight for bag of holding contents, counts the capacity of some containers, offers metric unit conversion, and recalculates carrying capacity taking into account STR effects and Ant Haul.</description>
+		<ruleset name="PFRPG" />
+		<ruleset name="3.5E" />
+	</properties>
+
+	<announcement text="PFRPG Encumbrance Penalties v1.0:\rThis extension applies encumbrance penalties and recalculates carrying capacity taking into account STR effects and Ant Haul." icon="EncumberedGuy" font="emotefont" />
+
+	<base>
+		<!-- Icon -->
+		<icon name="EncumberedGuy" file="encumbered_guy.png" />
+
+		<!-- Records -->
+		<includefile source="campaign/record_char_combat.xml" />
+		<includefile source="campaign/record_char_inventory.xml" />
+		<includefile source="campaign/record_char_main.xml" />
+		<!-- <includefile source="campaign/record_item.xml" /> -->
+
+		<!-- Templates -->
+		<!-- <includefile source="campaign/template_char.xml" /> -->
+
+		<!-- Strings -->
+		<includefile source="strings/strings_total_encumbrance.xml" />
+
+		<!-- Scripts -->
+		<script name="CharManagerTE" file="scripts/manager_char_TE.lua" />
+		<script name="TEGlobals" file="scripts/encumbrance_globals.lua" />
+		<script name="EffectManager35EDS" file="scripts/manager_effect_35E_DS.lua" />
+	</base>
+</root>
