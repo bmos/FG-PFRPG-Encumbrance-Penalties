@@ -3,7 +3,7 @@ This extension enhances functionality related to carrying capacity and weight/ar
 
 # Features
 * Automate encumbrance penalties based on total weight and current carrying capacity. The penalties are now colored to indicate their source. Red is for encumbrance based on weight and black is for armor.
-* Update carrying capacities when strength-modifying effects are applied/changed/removed. Currently supported: 'STR: N'(increases strength score and carrying capacity ONLY IN 3.5E), 'CARRY: N'(increases strength score only for calculating carrying capacity), and 'Ant Haul'(triples carrying capacity).
+* Update carrying capacities when strength-modifying effects are applied/changed/removed. Currently supported: 'STR: N' (increases strength score and carrying capacity ONLY IN 3.5E), 'CARRY: N' (increases strength score only for calculating carrying capacity), 'CARRYMULT: N' (multiplies carrying capacity such as for ant haul).
 * Auto-change speed based on weight encumbrance and some supported Pathfinder conditions.
 
 # Compatibility and Instructions
