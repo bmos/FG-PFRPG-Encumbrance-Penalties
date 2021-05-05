@@ -34,7 +34,7 @@ function onInit()
 	DB.addHandler(DB.getPath(node, 'size'), 'onUpdate', onSizeChanged)
 	DB.addHandler(DB.getPath(node, 'encumbrance.stradj'), 'onUpdate', onStrengthChanged)
 	DB.addHandler(DB.getPath(node, 'encumbrance.carrymult'), 'onUpdate', onEncumbranceChanged)
-	DB.addHandler(DB.getPath('options.ENCUMBRANCE_UNIT'), 'onUpdate', onEncumbranceChanged)
+	--DB.addHandler(DB.getPath('options.ENCUMBRANCE_UNIT'), 'onUpdate', onEncumbranceChanged)
 end
 
 function onClose()
@@ -48,7 +48,7 @@ function onClose()
 	DB.removeHandler(DB.getPath(node, 'size'), 'onUpdate', onSizeChanged)
 	DB.removeHandler(DB.getPath(node, 'encumbrance.stradj'), 'onUpdate', onStrengthChanged)
 	DB.removeHandler(DB.getPath(node, 'encumbrance.carrymult'), 'onUpdate', onEncumbranceChanged)
-	DB.removeHandler(DB.getPath('options.ENCUMBRANCE_UNIT'), 'onUpdate', onEncumbranceChanged)
+	--DB.removeHandler(DB.getPath('options.ENCUMBRANCE_UNIT'), 'onUpdate', onEncumbranceChanged)
 end
 
 function onEffectChanged(node)
@@ -193,6 +193,5 @@ function onEncumbranceChanged()
 	DB.setValue(nodeChar, 'encumbrance.liftoffground', 'number', nLiftOff)
 	DB.setValue(nodeChar, 'encumbrance.pushordrag', 'number', nPushDrag)
 	
-	-- This helps with automatically changing the weight units when the option is toggled
 	CharManager.updateEncumbrance(nodeChar)
 end
