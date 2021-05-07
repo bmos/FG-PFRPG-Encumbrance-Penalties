@@ -75,10 +75,6 @@ local function getStrEffectBonus(rActor)
 		nStrEffectMod = nStrEffectMod - 2
 	end
 
-	if EffectManager35EDS.hasEffectCondition(rActor, 'Paralyzed') then
-		nStrEffectMod = -1 * nStrEffectMod
-	end
-
 	-- include STR effects in calculating carrying capacity
 	local nStrEffects = EffectManager35EDS.getEffectsBonus(rActor, 'STR', true)
 	if nStrEffects and not DataCommon.isPFRPG() then
@@ -133,6 +129,9 @@ function onEncumbranceChanged()
 	DB.setValue(nodeChar, 'encumbrance.strbonusfromeffects', 'number', nStrEffectMod)
 
 	nStrength = nStrength + nStrEffectMod - nStrengthDamage
+	if EffectManager35EDS.hasEffectCondition(rActor, 'Paralyzed') then
+		nStrength = 0
+	end
 	
 	if nStrength > 0 then
 		if nStrength <= 10 then
