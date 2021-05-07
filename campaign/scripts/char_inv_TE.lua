@@ -3,18 +3,6 @@
 --
 
 local function getNodeCT(node)
-	local rActor
-	if node.getParent().getName() == 'charsheet' then
-		rActor = ActorManager.resolveActor(node)
-	elseif node.getChild('...').getName() == 'charsheet' then
-		rActor = ActorManager.resolveActor(node.getParent())
-	elseif node.getChild('....').getName() == 'charsheet' then -- this might not be necessary
-		rActor = ActorManager.resolveActor(node.getChild('...'))
-	end
-
-	return ActorManager.getCTNode(rActor)
-end
-
 function onInit()
 	onEncumbranceChanged()
 
@@ -24,7 +12,7 @@ function onInit()
 	DB.addHandler(DB.getPath(nodePC, 'encumbrance.stradj'), 'onUpdate', onStrengthChanged)
 	DB.addHandler(DB.getPath(nodePC, 'encumbrance.carrymult'), 'onUpdate', onEncumbranceChanged)
 	
-	local nodeCT = getNodeCT(nodePC)
+	local nodeCT = ActorManager.getCTNode(ActorManager.resolveActor(nodePC))
 	DB.addHandler(DB.getPath(nodeCT, 'effects.*.label'), 'onUpdate', onEffectChanged)
 	DB.addHandler(DB.getPath(nodeCT, 'effects.*.isactive'), 'onUpdate', onEffectChanged)
 	DB.addHandler(DB.getPath(nodeCT, 'effects'), 'onChildDeleted', onEffectRemoved)
@@ -37,7 +25,7 @@ function onClose()
 	DB.removeHandler(DB.getPath(nodePC, 'encumbrance.stradj'), 'onUpdate', onStrengthChanged)
 	DB.removeHandler(DB.getPath(nodePC, 'encumbrance.carrymult'), 'onUpdate', onEncumbranceChanged)
 	
-	local nodeCT = getNodeCT(nodePC)
+	local nodeCT = ActorManager.getCTNode(ActorManager.resolveActor(nodePC))
 	DB.removeHandler(DB.getPath(nodeCT, 'effects.*.label'), 'onUpdate', onEffectChanged)
 	DB.removeHandler(DB.getPath(nodeCT, 'effects.*.isactive'), 'onUpdate', onEffectChanged)
 	DB.removeHandler(DB.getPath(nodeCT, 'effects'), 'onChildDeleted', onEffectRemoved)
