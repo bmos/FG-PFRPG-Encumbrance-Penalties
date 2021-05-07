@@ -50,19 +50,19 @@ local function hasSpecialAbility(nodeChar, sSpecAbil)
 	return false
 end
 
-local function isSpeedHalved(rActor, nodeChar)
+local function isSpeedHalved(rActor)
 	return EffectManager35EDS.hasEffectCondition(rActor, "Exhausted")
 		or EffectManager35EDS.hasEffectCondition(rActor, "Entangled")
 end
 
 local function isSpeedNone(rActor)
-	local sStatus = ActorHealthManager.getHealthStatus(rActor) == ActorHealthManager.STATUS_DEAD or ActorHealthManager.getHealthStatus(rActor) == ActorHealthManager.STATUS_DYING
-	return sStatus
+	local sActorHealth = ActorHealthManager.getHealthStatus(rActor)
+	return sActorHealth == ActorHealthManager.STATUS_DEAD
+		or sActorHealth == ActorHealthManager.STATUS_DYING
 		or EffectManager35EDS.hasEffectCondition(rActor, "Grappled")
 		or EffectManager35EDS.hasEffectCondition(rActor, "Paralyzed")
 		or EffectManager35EDS.hasEffectCondition(rActor, "Petrified")
 		or EffectManager35EDS.hasEffectCondition(rActor, "Pinned")
-
 end
 
 --	Summary: Determine the total bonus to character"s speed from effects
@@ -74,7 +74,7 @@ local function getSpeedEffects(nodeChar)
 		return 0, false, false
 	end
 
-	local bSpeedHalved = isSpeedHalved(rActor, nodeChar)
+	local bSpeedHalved = isSpeedHalved(rActor)
 	local bSpeedZero = isSpeedNone(rActor)
 
 	--	Check if the character is disabled (at zero remaining hp)
