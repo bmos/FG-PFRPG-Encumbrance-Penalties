@@ -6,36 +6,28 @@ function onInit()
 	onEncumbranceChanged()
 
 	local nodePC = getDatabaseNode()
-	DB.addHandler(DB.getPath(nodePC, 'abilities.strength'), 'onChildUpdate', onStrengthChanged)
-	DB.addHandler(DB.getPath(nodePC, 'size'), 'onUpdate', onSizeChanged)
-	DB.addHandler(DB.getPath(nodePC, 'encumbrance.stradj'), 'onUpdate', onStrengthChanged)
+	DB.addHandler(DB.getPath(nodePC, 'abilities.strength'), 'onChildUpdate', onEncumbranceChanged)
+	DB.addHandler(DB.getPath(nodePC, 'size'), 'onUpdate', onEncumbranceChanged)
+	DB.addHandler(DB.getPath(nodePC, 'encumbrance.stradj'), 'onUpdate', onEncumbranceChanged)
 	DB.addHandler(DB.getPath(nodePC, 'encumbrance.carrymult'), 'onUpdate', onEncumbranceChanged)
 	
 	local nodeCT = ActorManager.getCTNode(ActorManager.resolveActor(nodePC))
-	DB.addHandler(DB.getPath(nodeCT, 'effects.*.label'), 'onUpdate', onEffectChanged)
-	DB.addHandler(DB.getPath(nodeCT, 'effects.*.isactive'), 'onUpdate', onEffectChanged)
-	DB.addHandler(DB.getPath(nodeCT, 'effects'), 'onChildDeleted', onEffectRemoved)
+	DB.addHandler(DB.getPath(nodeCT, 'effects.*.label'), 'onUpdate', onEncumbranceChanged)
+	DB.addHandler(DB.getPath(nodeCT, 'effects.*.isactive'), 'onUpdate', onEncumbranceChanged)
+	DB.addHandler(DB.getPath(nodeCT, 'effects'), 'onChildDeleted', onEncumbranceChanged)
 end
 
 function onClose()
 	local nodePC = getDatabaseNode()
-	DB.removeHandler(DB.getPath(nodePC, 'abilities.strength'), 'onChildUpdate', onStrengthChanged)
-	DB.removeHandler(DB.getPath(nodePC, 'size'), 'onUpdate', onSizeChanged)
-	DB.removeHandler(DB.getPath(nodePC, 'encumbrance.stradj'), 'onUpdate', onStrengthChanged)
+	DB.removeHandler(DB.getPath(nodePC, 'abilities.strength'), 'onChildUpdate', onEncumbranceChanged)
+	DB.removeHandler(DB.getPath(nodePC, 'size'), 'onUpdate', onEncumbranceChanged)
+	DB.removeHandler(DB.getPath(nodePC, 'encumbrance.stradj'), 'onUpdate', onEncumbranceChanged)
 	DB.removeHandler(DB.getPath(nodePC, 'encumbrance.carrymult'), 'onUpdate', onEncumbranceChanged)
 	
 	local nodeCT = ActorManager.getCTNode(ActorManager.resolveActor(nodePC))
-	DB.removeHandler(DB.getPath(nodeCT, 'effects.*.label'), 'onUpdate', onEffectChanged)
-	DB.removeHandler(DB.getPath(nodeCT, 'effects.*.isactive'), 'onUpdate', onEffectChanged)
-	DB.removeHandler(DB.getPath(nodeCT, 'effects'), 'onChildDeleted', onEffectRemoved)
-end
-
-function onEffectChanged()
-	onStrengthChanged()
-end
-
-function onEffectRemoved()
-	onStrengthChanged()
+	DB.removeHandler(DB.getPath(nodeCT, 'effects.*.label'), 'onUpdate', onEncumbranceChanged)
+	DB.removeHandler(DB.getPath(nodeCT, 'effects.*.isactive'), 'onUpdate', onEncumbranceChanged)
+	DB.removeHandler(DB.getPath(nodeCT, 'effects'), 'onChildDeleted', onEncumbranceChanged)
 end
 
 ---	Determine the total bonus to carrying capacity from effects STR or CARRY
@@ -66,14 +58,6 @@ local function getStrEffectBonus(rActor)
 	end
 
 	return nStrEffectMod
-end
-
-function onStrengthChanged()
-	onEncumbranceChanged()
-end
-
-function onSizeChanged()
-	onEncumbranceChanged()
 end
 
 function onEncumbranceChanged()
