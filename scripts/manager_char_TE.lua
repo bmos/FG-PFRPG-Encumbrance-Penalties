@@ -277,6 +277,12 @@ function calcItemArmorClass_new(nodeChar)
 	DB.setValue(nodeChar, "speed.total", "number", nSpeedTotal)
 end
 
+local updateEncumbrance_old
+local function updateEncumbrance_new(nodeChar)
+	updateEncumbrance_old(nodeChar)
+	calcItemArmorClass_new(nodeChar)
+end
+
 function onInit()
 	if Session.IsHost then
 		DB.addHandler(DB.getPath("charsheet.*.hp"), "onChildUpdate", onHealthChanged)
@@ -284,5 +290,7 @@ function onInit()
 		DB.addHandler(DB.getPath("charsheet.*.speed.base"), "onUpdate", onSpeedChanged)
 	end
 
+	updateEncumbrance_old = CharManager.updateEncumbrance;
+	CharManager.updateEncumbrance = updateEncumbrance_new;
 	CharManager.calcItemArmorClass = calcItemArmorClass_new;
 end
