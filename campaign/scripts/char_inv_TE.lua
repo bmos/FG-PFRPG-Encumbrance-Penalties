@@ -47,9 +47,8 @@ local function getStrEffectBonus(rActor)
 	end
 
 	-- include STR effects in calculating carrying capacity
-	local nStrEffects = EffectManager35EDS.getEffectsBonus(rActor, 'STR', true)
-	if nStrEffects and not DataCommon.isPFRPG() then
-		nStrEffectMod = nStrEffectMod + nStrEffects
+	if not DataCommon.isPFRPG() then
+		nStrEffectMod = nStrEffectMod + (EffectManager35EDS.getEffectsBonus(rActor, 'STR', true) or 0)
 	end
 
 	local nCarryBonus = EffectManager35EDS.getEffectsBonus(rActor, 'CARRY', true)
@@ -107,8 +106,8 @@ function onEncumbranceChanged()
 	nHeavy = math.floor(nHeavy * DB.getValue(nodeChar, 'encumbrance.carrymult', 1))
 
 	-- Check for carrying capacity multiplier attached to PC on combat tracker. If found, multiply their carrying capacity.
-	local nCarryMult = EffectManager35EDS.getEffectsBonus(rActor, 'CARRYMULT', true)
-	if nCarryMult then
+	local nCarryMult = EffectManager35EDS.getEffectsBonus(rActor, 'CARRYMULT', true) or 0
+	if nCarryMult ~= 0 then
 		nHeavy = nHeavy * nCarryMult
 	end
 
