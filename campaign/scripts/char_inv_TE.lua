@@ -2,6 +2,18 @@
 --	Please see the LICENSE.md file included with this distribution for attribution and copyright information.
 --
 
+local function onEffectChanged()
+	local rActor = ActorManager.resolveActor(getDatabaseNode().getChild('...'))
+	local nodeChar = ActorManager.getCreatureNode(rActor)
+	onEncumbranceChanged(nodeChar)
+end
+
+local function onEffectRemoved()
+	local rActor = ActorManager.resolveActor(getDatabaseNode().getParent())
+	local nodeChar = ActorManager.getCreatureNode(rActor)
+	onEncumbranceChanged(nodeChar)
+end
+
 function onInit()
 	onEncumbranceChanged()
 
@@ -12,9 +24,9 @@ function onInit()
 	DB.addHandler(DB.getPath(nodePC, 'encumbrance.carrymult'), 'onUpdate', onEncumbranceChanged)
 	
 	local nodeCT = ActorManager.getCTNode(ActorManager.resolveActor(nodePC))
-	DB.addHandler(DB.getPath(nodeCT, 'effects.*.label'), 'onUpdate', onEncumbranceChanged)
-	DB.addHandler(DB.getPath(nodeCT, 'effects.*.isactive'), 'onUpdate', onEncumbranceChanged)
-	DB.addHandler(DB.getPath(nodeCT, 'effects'), 'onChildDeleted', onEncumbranceChanged)
+	DB.addHandler(DB.getPath(nodeCT, 'effects.*.label'), 'onUpdate', onEffectChanged)
+	DB.addHandler(DB.getPath(nodeCT, 'effects.*.isactive'), 'onUpdate', onEffectChanged)
+	DB.addHandler(DB.getPath(nodeCT, 'effects'), 'onChildDeleted', onEffectRemoved)
 end
 
 function onClose()
@@ -25,9 +37,9 @@ function onClose()
 	DB.removeHandler(DB.getPath(nodePC, 'encumbrance.carrymult'), 'onUpdate', onEncumbranceChanged)
 	
 	local nodeCT = ActorManager.getCTNode(ActorManager.resolveActor(nodePC))
-	DB.removeHandler(DB.getPath(nodeCT, 'effects.*.label'), 'onUpdate', onEncumbranceChanged)
-	DB.removeHandler(DB.getPath(nodeCT, 'effects.*.isactive'), 'onUpdate', onEncumbranceChanged)
-	DB.removeHandler(DB.getPath(nodeCT, 'effects'), 'onChildDeleted', onEncumbranceChanged)
+	DB.removeHandler(DB.getPath(nodeCT, 'effects.*.label'), 'onUpdate', onEffectChanged)
+	DB.removeHandler(DB.getPath(nodeCT, 'effects.*.isactive'), 'onUpdate', onEffectChanged)
+	DB.removeHandler(DB.getPath(nodeCT, 'effects'), 'onChildDeleted', onEffectRemoved)
 end
 
 ---	Determine the total bonus to carrying capacity from effects STR or CARRY
@@ -59,20 +71,13 @@ local function getStrEffectBonus(rActor)
 	return nStrEffectMod
 end
 
-function onEncumbranceChanged()
-	local rActor, nodeChar
-
-	if getDatabaseNode().getParent().getName() == 'charsheet' then
+function onEncumbranceChanged(nodeChar)
+	local nodeChar = nodeChar
+	if not nodeChar then
 		nodeChar = getDatabaseNode()
-		rActor = ActorManager.resolveActor(nodeChar)
-	elseif getDatabaseNode().getName() == 'effects' then
-		rActor = ActorManager.resolveActor(getDatabaseNode())
-		if ActorManager.isPC(rActor) then
-			nodeChar = ActorManager.getCreatureNode(rActor)
-		end
-	--else
-	--	return
 	end
+
+	local rActor = ActorManager.resolveActor(nodeChar)
 
 	local nHeavy = 0
 	local nStrength = DB.getValue(nodeChar, 'abilities.strength.score', 10)
