@@ -2,12 +2,8 @@
 --	Please see the LICENSE.md file included with this distribution for attribution and copyright information.
 --
 
----	Locate the effects node within the relevant player character's node within combattracker
---	@param node the databasenode passed along when this file is initialized
---	@return nodeCharCT path to this PC's databasenode "effects" in the combat tracker
-local function getNodeCharCT(node)
+local function getNodeCT(node)
 	local rActor
-	local nodeCharCT
 	if node.getParent().getName() == 'charsheet' then
 		rActor = ActorManager.resolveActor(node)
 	elseif node.getChild('...').getName() == 'charsheet' then
@@ -15,47 +11,43 @@ local function getNodeCharCT(node)
 	elseif node.getChild('....').getName() == 'charsheet' then -- this might not be necessary
 		rActor = ActorManager.resolveActor(node.getChild('...'))
 	end
-		nodeCharCT = ActorManager.getCTNode(rActor)
 
-	return nodeCharCT
+	return ActorManager.getCTNode(rActor)
 end
 
 function onInit()
-	local node = getDatabaseNode()
+	onEncumbranceChanged()
 
-	onEncumbranceChanged() -- this is now handled by char_invlist_TE
-
-	local nodeCharCT = getNodeCharCT(node)
-
-	DB.addHandler(DB.getPath(nodeCharCT, 'effects.*.label'), 'onUpdate', onEffectChanged)
-	DB.addHandler(DB.getPath(nodeCharCT, 'effects.*.isactive'), 'onUpdate', onEffectChanged)
-	DB.addHandler(DB.getPath(nodeCharCT, 'effects'), 'onChildDeleted', onEffectRemoved)
-	DB.addHandler(DB.getPath(node, 'abilities.strength'), 'onChildUpdate', onStrengthChanged)
-	DB.addHandler(DB.getPath(node, 'size'), 'onUpdate', onSizeChanged)
-	DB.addHandler(DB.getPath(node, 'encumbrance.stradj'), 'onUpdate', onStrengthChanged)
-	DB.addHandler(DB.getPath(node, 'encumbrance.carrymult'), 'onUpdate', onEncumbranceChanged)
-	--DB.addHandler(DB.getPath('options.ENCUMBRANCE_UNIT'), 'onUpdate', onEncumbranceChanged)
+	local nodePC = getDatabasenode()
+	DB.addHandler(DB.getPath(nodePC, 'abilities.strength'), 'onChildUpdate', onStrengthChanged)
+	DB.addHandler(DB.getPath(nodePC, 'size'), 'onUpdate', onSizeChanged)
+	DB.addHandler(DB.getPath(nodePC, 'encumbrance.stradj'), 'onUpdate', onStrengthChanged)
+	DB.addHandler(DB.getPath(nodePC, 'encumbrance.carrymult'), 'onUpdate', onEncumbranceChanged)
+	
+	local nodeCT = getNodeCT(nodePC)
+	DB.addHandler(DB.getPath(nodeCT, 'effects.*.label'), 'onUpdate', onEffectChanged)
+	DB.addHandler(DB.getPath(nodeCT, 'effects.*.isactive'), 'onUpdate', onEffectChanged)
+	DB.addHandler(DB.getPath(nodeCT, 'effects'), 'onChildDeleted', onEffectRemoved)
 end
 
 function onClose()
-	local node = getDatabaseNode()
-	local nodeCharCT = getNodeCharCT(node)
-
-	DB.removeHandler(DB.getPath(nodeCharCT, 'effects.*.label'), 'onUpdate', onEffectChanged)
-	DB.removeHandler(DB.getPath(nodeCharCT, 'effects.*.isactive'), 'onUpdate', onEffectChanged)
-	DB.removeHandler(DB.getPath(nodeCharCT, 'effects'), 'onChildDeleted', onEffectRemoved)
-	DB.removeHandler(DB.getPath(node, 'abilities.strength'), 'onChildUpdate', onStrengthChanged)
-	DB.removeHandler(DB.getPath(node, 'size'), 'onUpdate', onSizeChanged)
-	DB.removeHandler(DB.getPath(node, 'encumbrance.stradj'), 'onUpdate', onStrengthChanged)
-	DB.removeHandler(DB.getPath(node, 'encumbrance.carrymult'), 'onUpdate', onEncumbranceChanged)
-	--DB.removeHandler(DB.getPath('options.ENCUMBRANCE_UNIT'), 'onUpdate', onEncumbranceChanged)
+	local nodePC = getDatabasenode()
+	DB.removeHandler(DB.getPath(nodePC, 'abilities.strength'), 'onChildUpdate', onStrengthChanged)
+	DB.removeHandler(DB.getPath(nodePC, 'size'), 'onUpdate', onSizeChanged)
+	DB.removeHandler(DB.getPath(nodePC, 'encumbrance.stradj'), 'onUpdate', onStrengthChanged)
+	DB.removeHandler(DB.getPath(nodePC, 'encumbrance.carrymult'), 'onUpdate', onEncumbranceChanged)
+	
+	local nodeCT = getNodeCT(nodePC)
+	DB.removeHandler(DB.getPath(nodeCT, 'effects.*.label'), 'onUpdate', onEffectChanged)
+	DB.removeHandler(DB.getPath(nodeCT, 'effects.*.isactive'), 'onUpdate', onEffectChanged)
+	DB.removeHandler(DB.getPath(nodeCT, 'effects'), 'onChildDeleted', onEffectRemoved)
 end
 
-function onEffectChanged(node)
+function onEffectChanged()
 	onStrengthChanged()
 end
 
-function onEffectRemoved(node)
+function onEffectRemoved()
 	onStrengthChanged()
 end
 
