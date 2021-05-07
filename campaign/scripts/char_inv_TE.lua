@@ -18,7 +18,7 @@ end
 function onInit()
 	onEncumbranceChanged()
 
-	local nodePC = getDatabasenode()
+	local nodePC = getDatabaseNode()
 	DB.addHandler(DB.getPath(nodePC, 'abilities.strength'), 'onChildUpdate', onStrengthChanged)
 	DB.addHandler(DB.getPath(nodePC, 'size'), 'onUpdate', onSizeChanged)
 	DB.addHandler(DB.getPath(nodePC, 'encumbrance.stradj'), 'onUpdate', onStrengthChanged)
@@ -31,7 +31,7 @@ function onInit()
 end
 
 function onClose()
-	local nodePC = getDatabasenode()
+	local nodePC = getDatabaseNode()
 	DB.removeHandler(DB.getPath(nodePC, 'abilities.strength'), 'onChildUpdate', onStrengthChanged)
 	DB.removeHandler(DB.getPath(nodePC, 'size'), 'onUpdate', onSizeChanged)
 	DB.removeHandler(DB.getPath(nodePC, 'encumbrance.stradj'), 'onUpdate', onStrengthChanged)
