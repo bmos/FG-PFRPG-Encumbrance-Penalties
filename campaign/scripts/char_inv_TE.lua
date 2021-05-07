@@ -73,10 +73,7 @@ end
 
 function onEncumbranceChanged(nodeChar)
 	local nodeChar = nodeChar
-	if not nodeChar then
-		nodeChar = getDatabaseNode()
-	end
-
+	if not nodeChar then nodeChar = getDatabaseNode(); end
 	local rActor = ActorManager.resolveActor(nodeChar)
 
 	local nHeavy = 0
