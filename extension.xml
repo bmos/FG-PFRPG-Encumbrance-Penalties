@@ -22,10 +22,6 @@
 		<includefile source="campaign/record_char_combat.xml" />
 		<includefile source="campaign/record_char_inventory.xml" />
 		<includefile source="campaign/record_char_main.xml" />
-		<!-- <includefile source="campaign/record_item.xml" /> -->
-
-		<!-- Templates -->
-		<!-- <includefile source="campaign/template_char.xml" /> -->
 
 		<!-- Strings -->
 		<includefile source="strings/strings_total_encumbrance.xml" />
