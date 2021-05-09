@@ -78,16 +78,14 @@ function onEncumbranceChanged(nodeChar)
 
 	local nHeavy = 0
 	local nStrength = DB.getValue(nodeChar, 'abilities.strength.score', 10)
-	local nStrengthDamage = DB.getValue(nodeChar, 'abilities.strength.damage', 0)
-	if DataCommon.isPFRPG() then nStrengthDamage = 0 end
+	local nStrengthDamage = 0
+	if not DataCommon.isPFRPG() then nStrengthDamage = DB.getValue(nodeChar, 'abilities.strength.damage', 0) end
 
 	if DB.getValue(nodeChar, 'encumbrance.stradj', 0) == 0 and CharManager.hasTrait(nodeChar, 'Muscle of the Society') then
 		DB.setValue(nodeChar, 'encumbrance.stradj', 2)
 	end
 
-	local nStrengthAdj = DB.getValue(nodeChar, 'encumbrance.stradj', 0)
-
-	nStrength = nStrength + nStrengthAdj
+	nStrength = nStrength + DB.getValue(nodeChar, 'encumbrance.stradj', 0)
 	
 	local nStrEffectMod = getStrEffectBonus(rActor)
 	DB.setValue(nodeChar, 'encumbrance.strbonusfromeffects', 'number', nStrEffectMod)
