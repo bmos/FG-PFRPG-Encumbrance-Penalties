@@ -50,22 +50,15 @@ local function getStrEffectBonus(rActor)
 		return 0
 	end
 
-	local nStrEffectMod = 0
-	
+	local nStrEffectMod = EffectManager35EDS.getEffectsBonus(rActor, 'CARRY', true)
 	if EffectManager35EDS.hasEffectCondition(rActor, 'Exhausted') then
 		nStrEffectMod = nStrEffectMod - 6
 	elseif EffectManager35EDS.hasEffectCondition(rActor, 'Fatigued') then
 		nStrEffectMod = nStrEffectMod - 2
 	end
-
 	-- include STR effects in calculating carrying capacity
 	if not DataCommon.isPFRPG() then
 		nStrEffectMod = nStrEffectMod + (EffectManager35EDS.getEffectsBonus(rActor, 'STR', true) or 0)
-	end
-
-	local nCarryBonus = EffectManager35EDS.getEffectsBonus(rActor, 'CARRY', true)
-	if nCarryBonus then
-		nStrEffectMod = nStrEffectMod + nCarryBonus
 	end
 
 	return nStrEffectMod
