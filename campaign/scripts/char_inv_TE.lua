@@ -65,8 +65,7 @@ local function getStrEffectBonus(rActor)
 end
 
 function onEncumbranceChanged(nodeChar)
-	local nodeChar = nodeChar
-	if not nodeChar then nodeChar = getDatabaseNode(); end
+	local nodeChar = nodeChar or getDatabaseNode()
 	local rActor = ActorManager.resolveActor(nodeChar)
 
 	local nHeavy = 0
