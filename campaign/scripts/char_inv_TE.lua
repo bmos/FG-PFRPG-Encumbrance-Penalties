@@ -14,14 +14,18 @@ local function onEffectRemoved()
 	onEncumbranceChanged(nodeChar)
 end
 
+local function onStrAdjChanged()
+	onEncumbranceChanged(getDatabaseNode())
+end
+
 function onInit()
 	onEncumbranceChanged()
 
 	local nodePC = getDatabaseNode()
 	DB.addHandler(DB.getPath(nodePC, 'abilities.strength'), 'onChildUpdate', onEncumbranceChanged)
 	DB.addHandler(DB.getPath(nodePC, 'size'), 'onUpdate', onEncumbranceChanged)
-	DB.addHandler(DB.getPath(nodePC, 'encumbrance.stradj'), 'onUpdate', onEncumbranceChanged)
 	DB.addHandler(DB.getPath(nodePC, 'encumbrance.carrymult'), 'onUpdate', onEncumbranceChanged)
+	DB.addHandler(DB.getPath(nodePC, 'encumbrance.stradj'), 'onUpdate', onStrAdjChanged)
 	
 	local nodeCT = ActorManager.getCTNode(ActorManager.resolveActor(nodePC))
 	DB.addHandler(DB.getPath(nodeCT, 'effects.*.label'), 'onUpdate', onEffectChanged)
@@ -33,8 +37,8 @@ function onClose()
 	local nodePC = getDatabaseNode()
 	DB.removeHandler(DB.getPath(nodePC, 'abilities.strength'), 'onChildUpdate', onEncumbranceChanged)
 	DB.removeHandler(DB.getPath(nodePC, 'size'), 'onUpdate', onEncumbranceChanged)
-	DB.removeHandler(DB.getPath(nodePC, 'encumbrance.stradj'), 'onUpdate', onEncumbranceChanged)
 	DB.removeHandler(DB.getPath(nodePC, 'encumbrance.carrymult'), 'onUpdate', onEncumbranceChanged)
+	DB.removeHandler(DB.getPath(nodePC, 'encumbrance.stradj'), 'onUpdate', onStrAdjChanged)
 	
 	local nodeCT = ActorManager.getCTNode(ActorManager.resolveActor(nodePC))
 	DB.removeHandler(DB.getPath(nodeCT, 'effects.*.label'), 'onUpdate', onEffectChanged)
@@ -45,7 +49,7 @@ end
 ---	Determine the total bonus to carrying capacity from effects STR or CARRY
 --	@param rActor a table containing relevant paths and information on this PC
 --	@return nStrEffectMod the PC's current strength score after all bonuses are applied
-local function getStrEffectBonus(rActor)
+local function getStrEffectBonus(rActor, nodeChar)
 	if not rActor then
 		return 0
 	end
@@ -61,6 +65,9 @@ local function getStrEffectBonus(rActor)
 		nStrEffectMod = nStrEffectMod + (EffectManager35EDS.getEffectsBonus(rActor, 'STR', true) or 0)
 	end
 
+	DB.setValue(nodeChar, 'encumbrance.strbonusfromeffects', 'number', nStrEffectMod)
+
+	-- Debug.chat('Fatigued', EffectManager35EDS.hasEffectCondition(rActor, 'Fatigued'), nStrEffectMod)
 	return nStrEffectMod
 end
 
@@ -69,7 +76,9 @@ function onEncumbranceChanged(nodeChar)
 	local rActor = ActorManager.resolveActor(nodeChar)
 
 	local nHeavy = 0
+
 	local nStrength = DB.getValue(nodeChar, 'abilities.strength.score', 10)
+
 	local nStrengthDamage = 0
 	if not DataCommon.isPFRPG() then nStrengthDamage = DB.getValue(nodeChar, 'abilities.strength.damage', 0) end
 
@@ -77,12 +86,7 @@ function onEncumbranceChanged(nodeChar)
 		DB.setValue(nodeChar, 'encumbrance.stradj', 2)
 	end
 
-	nStrength = nStrength + DB.getValue(nodeChar, 'encumbrance.stradj', 0)
-	
-	local nStrEffectMod = getStrEffectBonus(rActor)
-	DB.setValue(nodeChar, 'encumbrance.strbonusfromeffects', 'number', nStrEffectMod)
-
-	nStrength = nStrength + nStrEffectMod - nStrengthDamage
+	nStrength = nStrength + getStrEffectBonus(rActor, nodeChar) - nStrengthDamage + DB.getValue(nodeChar, 'encumbrance.stradj', 0)
 	if EffectManager35EDS.hasEffectCondition(rActor, 'Paralyzed') then
 		nStrength = 0
 	end
