@@ -14,7 +14,8 @@ local function onEffectRemoved()
 	onEncumbranceChanged(nodeChar)
 end
 
-local function onStrAdjChanged()
+local function onStrengthChanged()
+	-- Debug.chat(getDatabaseNode())
 	onEncumbranceChanged(getDatabaseNode())
 end
 
@@ -24,9 +25,9 @@ function onInit()
 	local nodePC = getDatabaseNode()
 	DB.addHandler(DB.getPath(nodePC, 'abilities.strength'), 'onChildUpdate', onEncumbranceChanged)
 	DB.addHandler(DB.getPath(nodePC, 'size'), 'onUpdate', onEncumbranceChanged)
-	DB.addHandler(DB.getPath(nodePC, 'encumbrance.carrymult'), 'onUpdate', onEncumbranceChanged)
-	DB.addHandler(DB.getPath(nodePC, 'encumbrance.stradj'), 'onUpdate', onStrAdjChanged)
-	
+	DB.addHandler(DB.getPath(nodePC, 'encumbrance.carrymult'), 'onUpdate', onStrengthChanged)
+	DB.addHandler(DB.getPath(nodePC, 'encumbrance.stradj'), 'onUpdate', onStrengthChanged)
+
 	local nodeCT = ActorManager.getCTNode(ActorManager.resolveActor(nodePC))
 	DB.addHandler(DB.getPath(nodeCT, 'effects.*.label'), 'onUpdate', onEffectChanged)
 	DB.addHandler(DB.getPath(nodeCT, 'effects.*.isactive'), 'onUpdate', onEffectChanged)
@@ -37,8 +38,8 @@ function onClose()
 	local nodePC = getDatabaseNode()
 	DB.removeHandler(DB.getPath(nodePC, 'abilities.strength'), 'onChildUpdate', onEncumbranceChanged)
 	DB.removeHandler(DB.getPath(nodePC, 'size'), 'onUpdate', onEncumbranceChanged)
-	DB.removeHandler(DB.getPath(nodePC, 'encumbrance.carrymult'), 'onUpdate', onEncumbranceChanged)
-	DB.removeHandler(DB.getPath(nodePC, 'encumbrance.stradj'), 'onUpdate', onStrAdjChanged)
+	DB.removeHandler(DB.getPath(nodePC, 'encumbrance.carrymult'), 'onUpdate', onStrengthChanged)
+	DB.removeHandler(DB.getPath(nodePC, 'encumbrance.stradj'), 'onUpdate', onStrengthChanged)
 	
 	local nodeCT = ActorManager.getCTNode(ActorManager.resolveActor(nodePC))
 	DB.removeHandler(DB.getPath(nodeCT, 'effects.*.label'), 'onUpdate', onEffectChanged)
