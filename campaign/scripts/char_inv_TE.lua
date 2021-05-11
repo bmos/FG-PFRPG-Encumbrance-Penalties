@@ -84,7 +84,9 @@ function onEncumbranceChanged(nodeChar)
 	if not DataCommon.isPFRPG() then nStrengthDamage = DB.getValue(nodeChar, 'abilities.strength.damage', 0) end
 
 	if DB.getValue(nodeChar, 'encumbrance.stradj', 0) == 0 and CharManager.hasTrait(nodeChar, 'Muscle of the Society') then
+		DB.removeHandler(DB.getPath(nodeChar, 'encumbrance.stradj'), 'onUpdate', onStrengthChanged)
 		DB.setValue(nodeChar, 'encumbrance.stradj', 2)
+		DB.addHandler(DB.getPath(nodeChar, 'encumbrance.stradj'), 'onUpdate', onStrengthChanged)
 	end
 
 	nStrength = nStrength + getStrEffectBonus(rActor, nodeChar) - nStrengthDamage + DB.getValue(nodeChar, 'encumbrance.stradj', 0)
