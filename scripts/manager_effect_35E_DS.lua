@@ -303,24 +303,24 @@ function getEffectsBonus(rActor, aEffectType, bModOnly, aFilter, rFilterActor, b
 		end
 		return {}, 0, 0;
 	end
-	
+
 	-- MAKE BONUS TYPE INTO TABLE, IF NEEDED
 	if type(aEffectType) ~= "table" then
 		aEffectType = { aEffectType };
 	end
-	
+
 	-- START WITH AN EMPTY MODIFIER TOTAL
 	local aTotalDice = {};
 	local nTotalMod = 0;
 	local nEffectCount = 0;
-	
+
 	-- ITERATE THROUGH EACH BONUS TYPE
 	local masterbonuses = {};
 	local masterpenalties = {};
 	for k, v in pairs(aEffectType) do
 		-- GET THE MODIFIERS FOR THIS MODIFIER TYPE
 		local effbonusbytype, nEffectSubCount = EffectManager35EDS.getEffectsBonusByType(rActor, v, true, aFilter, rFilterActor, bTargetedOnly);
-		
+
 		-- ITERATE THROUGH THE MODIFIERS
 		for k2, v2 in pairs(effbonusbytype) do
 			-- IF MODIFIER TYPE IS UNTYPED, THEN APPEND TO TOTAL MODIFIER
@@ -330,7 +330,7 @@ function getEffectsBonus(rActor, aEffectType, bModOnly, aFilter, rFilterActor, b
 					table.insert(aTotalDice, v3);
 				end
 				nTotalMod = nTotalMod + v2.mod;
-			
+
 			-- OTHERWISE, WE HAVE A NON-ENERGY MODIFIER TYPE, WHICH MEANS WE NEED TO INTEGRATE
 			-- (IGNORE DICE, ONLY TAKE BIGGEST BONUS AND/OR PENALTY FOR EACH MODIFIER TYPE)
 			else
@@ -365,13 +365,14 @@ function hasEffect(rActor, sEffect, rTarget, bTargetedOnly, bIgnoreEffectTargets
 		return false;
 	end
 	local sLowerEffect = sEffect:lower();
-	
+
 	-- Iterate through each effect
 	local aMatch = {};
 	for _,v in pairs(DB.getChildren(ActorManager.getCTNode(rActor), "effects")) do
 		local nActive = DB.getValue(v, "isactive", 0);
 		if nActive ~= 0 then
 			-- Debug.chat(rActor, sEffect, rTarget, bTargetedOnly, bIgnoreEffectTargets)
+
 			-- Parse each effect label
 			local sLabel = DB.getValue(v, "label", "");
 			local bTargeted = EffectManager.isTargetedEffect(v);
@@ -393,7 +394,7 @@ function hasEffect(rActor, sEffect, rTarget, bTargetedOnly, bIgnoreEffectTargets
 					if not EffectManager35E.checkConditional(rTarget, v, rEffectComp.remainder, rActor) then
 						break;
 					end
-				
+
 				-- Check for match
 				elseif rEffectComp.original:lower() == sLowerEffect then
 					if bTargeted and not bIgnoreEffectTargets then
@@ -404,15 +405,15 @@ function hasEffect(rActor, sEffect, rTarget, bTargetedOnly, bIgnoreEffectTargets
 						nMatch = kEffectComp;
 					end
 				end
-				
 			end
-			
+
 			-- If matched, then remove one-off effects
-			-- if nMatch > 0 then
+			if nMatch > 0 then
 				-- if nActive == 2 then
 					-- DB.setValue(v, "isactive", "number", 1);
 				-- else
-					-- table.insert(aMatch, v);
+				if nActive == 1 then
+					table.insert(aMatch, v);
 					-- local sApply = DB.getValue(v, "apply", "");
 					-- if sApply == "action" then
 						-- EffectManager.notifyExpire(v, 0);
@@ -421,11 +422,11 @@ function hasEffect(rActor, sEffect, rTarget, bTargetedOnly, bIgnoreEffectTargets
 					-- elseif sApply == "single" then
 						-- EffectManager.notifyExpire(v, nMatch, true);
 					-- end
-				-- end
-			-- end
+				end
+			end
 		end
 	end
-	
+
 	if #aMatch > 0 then
 		return true;
 	end
