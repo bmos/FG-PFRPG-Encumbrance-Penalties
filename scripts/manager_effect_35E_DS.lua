@@ -4,243 +4,10 @@
 --
 
 -- bmos' list of changes to simplify maintenance:
--- Removed onInit() function
+-- Removed onInit, parseEffectComp, rebuildParsedEffectComp, applyOngoingDamageAdjustment, checkConditional, and checkConditionalHelper functions
 -- Removed all in EFFECT MANAGER OVERRIDES section
 -- Commented out code labeled "Remove one shot effects"
 -- Commented out code labeled "If matched, then remove one-off effects"
-
-function parseEffectComp(s)
-	local sType = nil;
-	local aDice = {};
-	local nMod = 0;
-	local aRemainder = {};
-	local nRemainderIndex = 1;
-	
-	local aWords, aWordStats = StringManager.parseWords(s, "%.%[%]%(%):");
-	if #aWords > 0 then
-		sType = aWords[1]:match("^([^:]+):");
-		if sType then
-			nRemainderIndex = 2;
-			
-			local sValueCheck = aWords[1]:sub(#sType + 2);
-			if sValueCheck ~= "" then
-				table.insert(aWords, 2, sValueCheck);
-				table.insert(aWordStats, 2, { startpos = aWordStats[1].startpos + #sType + 1, endpos = aWordStats[1].endpos });
-				aWords[1] = aWords[1]:sub(1, #sType + 1);
-				aWordStats[1].endpos = #sType + 1;
-			end
-			
-			if #aWords > 1 then
-				if StringManager.isDiceString(aWords[2]) then
-					aDice, nMod = StringManager.convertStringToDice(aWords[2]);
-					nRemainderIndex = 3;
-				end
-			end
-		end
-		
-		if nRemainderIndex <= #aWords then
-			while nRemainderIndex <= #aWords and aWords[nRemainderIndex]:match("^%[%d?%a+%]$") do
-				table.insert(aRemainder, aWords[nRemainderIndex]);
-				nRemainderIndex = nRemainderIndex + 1;
-			end
-		end
-		
-		if nRemainderIndex <= #aWords then
-			local sRemainder = s:sub(aWordStats[nRemainderIndex].startpos);
-			local nStartRemainderPhrase = 1;
-			local i = 1;
-			while i < #sRemainder do
-				local sCheck = sRemainder:sub(i, i);
-				if sCheck == "," then
-					local sRemainderPhrase = sRemainder:sub(nStartRemainderPhrase, i - 1);
-					if sRemainderPhrase and sRemainderPhrase ~= "" then
-						sRemainderPhrase = StringManager.trim(sRemainderPhrase);
-						table.insert(aRemainder, sRemainderPhrase);
-					end
-					nStartRemainderPhrase = i + 1;
-				elseif sCheck == "(" then
-					while i < #sRemainder do
-						if sRemainder:sub(i, i) == ")" then
-							break;
-						end
-						i = i + 1;
-					end
-				elseif sCheck == "[" then
-					while i < #sRemainder do
-						if sRemainder:sub(i, i) == "]" then
-							break;
-						end
-						i = i + 1;
-					end
-				end
-				i = i + 1;
-			end
-			local sRemainderPhrase = sRemainder:sub(nStartRemainderPhrase, #sRemainder);
-			if sRemainderPhrase and sRemainderPhrase ~= "" then
-				sRemainderPhrase = StringManager.trim(sRemainderPhrase);
-				table.insert(aRemainder, sRemainderPhrase);
-			end
-		end
-	end
-
-	return  {
-		type = sType or "", 
-		mod = nMod, 
-		dice = aDice, 
-		remainder = aRemainder, 
-		original = StringManager.trim(s)
-	};
-end
-
-function rebuildParsedEffectComp(rComp)
-	if not rComp then
-		return "";
-	end
-	
-	local aComp = {};
-	if rComp.type ~= "" then
-		table.insert(aComp, rComp.type .. ":");
-	end
-	local sDiceString = StringManager.convertDiceToString(rComp.dice, rComp.mod);
-	if sDiceString ~= "" then
-		table.insert(aComp, sDiceString);
-	end
-	if #(rComp.remainder) > 0 then
-		table.insert(aComp, table.concat(rComp.remainder, ","));
-	end
-	return table.concat(aComp, " ");
-end
-
-function applyOngoingDamageAdjustment(nodeActor, nodeEffect, rEffectComp)
-	if #(rEffectComp.dice) == 0 and rEffectComp.mod == 0 then
-		return;
-	end
-	
-	local rTarget = ActorManager.resolveActor(nodeActor);
-	
-	local aResults = {};
-	if rEffectComp.type == "FHEAL" then
-		local sStatus = ActorHealthManager.getHealthStatus(rTarget);
-		if sStatus == ActorHealthManager.STATUS_DEAD then
-			return;
-		end
-		if DB.getValue(nodeActor, "wounds", 0) == 0 and DB.getValue(nodeActor, "nonlethal", 0) == 0 then
-			return;
-		end
-		
-		table.insert(aResults, "[FHEAL] Fast Heal");
-
-	elseif rEffectComp.type == "REGEN" then
-		local bPFMode = DataCommon.isPFRPG();
-		if bPFMode then
-			if DB.getValue(nodeActor, "wounds", 0) == 0 and DB.getValue(nodeActor, "nonlethal", 0) == 0 then
-				return;
-			end
-		else
-			if DB.getValue(nodeActor, "nonlethal", 0) == 0 then
-				return;
-			end
-		end
-		
-		table.insert(aResults, "[REGEN] Regeneration");
-
-	else
-		table.insert(aResults, "[DAMAGE] Ongoing Damage");
-		if #(rEffectComp.remainder) > 0 then
-			table.insert(aResults, "[TYPE: " .. table.concat(rEffectComp.remainder, ","):lower() .. "]");
-		end
-	end
-
-	local rRoll = { sType = "damage", sDesc = table.concat(aResults, " "), aDice = rEffectComp.dice, nMod = rEffectComp.mod };
-	if EffectManager.isGMEffect(nodeActor, nodeEffect) then
-		rRoll.bSecret = true;
-	end
-	ActionsManager.roll(nil, rTarget, rRoll);
-end
-
-function evalAbilityHelper(rActor, sEffectAbility, nodeSpellClass)
-	local sSign, sModifier, sShortAbility = sEffectAbility:match("^%[([%+%-]?)([HTQ%d]?)([A-Z][A-Z][A-Z]?)%]$");
-
-	local nAbility = nil;
-	if sShortAbility == "STR" then
-		nAbility = ActorManager35E.getAbilityBonus(rActor, "strength");
-	elseif sShortAbility == "DEX" then
-		nAbility = ActorManager35E.getAbilityBonus(rActor, "dexterity");
-	elseif sShortAbility == "CON" then
-		nAbility = ActorManager35E.getAbilityBonus(rActor, "constitution");
-	elseif sShortAbility == "INT" then
-		nAbility = ActorManager35E.getAbilityBonus(rActor, "intelligence");
-	elseif sShortAbility == "WIS" then
-		nAbility = ActorManager35E.getAbilityBonus(rActor, "wisdom");
-	elseif sShortAbility == "CHA" then
-		nAbility = ActorManager35E.getAbilityBonus(rActor, "charisma");
-	elseif sShortAbility == "LVL" then
-		nAbility = ActorManager35E.getAbilityBonus(rActor, "level");
-	elseif sShortAbility == "BAB" then
-		nAbility = ActorManager35E.getAbilityBonus(rActor, "bab");
-	elseif sShortAbility == "CL" then
-		if nodeSpellClass then
-			nAbility = DB.getValue(nodeSpellClass, "cl", 0);
-		end
-	end
-	
-	if nAbility then
-		if sSign == "-" then
-			nAbility = 0 - nAbility;
-		end
-		if sModifier == "H" then
-			if nAbility > 0 then
-				nAbility = math.floor(nAbility / 2);
-			else
-				nAbility = math.ceil(nAbility / 2);
-			end
-		elseif sModifier == "T" then
-			if nAbility > 0 then
-				nAbility = math.floor(nAbility / 3);
-			else
-				nAbility = math.ceil(nAbility / 3);
-			end
-		elseif sModifier == "Q" then
-			if nAbility > 0 then
-				nAbility = math.floor(nAbility / 4);
-			else
-				nAbility = math.ceil(nAbility / 4);
-			end
-		elseif sModifier then
-			nAbility = nAbility * (tonumber(sModifier) or 1);
-		end
-	end
-	
-	return nAbility;
-end
-
-function evalEffect(rActor, s, nodeSpellClass)
-	if not s then
-		return "";
-	end
-	if not rActor then
-		return s;
-	end
-	
-	local aNewEffectComps = {};
-	local aEffectComps = EffectManager.parseEffect(s);
-	for _,sComp in ipairs(aEffectComps) do
-		local rEffectComp = parseEffectComp(sComp);
-		for i = #(rEffectComp.remainder), 1, -1 do
-			if rEffectComp.remainder[i]:match("^%[([%+%-]?)([HTQ%d]?)([A-Z][A-Z][A-Z]?)%]$") then
-				local nAbility = evalAbilityHelper(rActor, rEffectComp.remainder[i], nodeSpellClass);
-				if nAbility then
-					rEffectComp.mod = rEffectComp.mod + nAbility;
-					table.remove(rEffectComp.remainder, i);
-				end
-			end
-		end
-		table.insert(aNewEffectComps, rebuildParsedEffectComp(rEffectComp));
-	end
-	local sOutput = EffectManager.rebuildParsedEffect(aNewEffectComps);
-	
-	return sOutput;
-end
 
 function getEffectsByType(rActor, sEffectType, aFilter, rFilterActor, bTargetedOnly)
 	if not rActor then
@@ -280,17 +47,17 @@ function getEffectsByType(rActor, sEffectType, aFilter, rFilterActor, bTargetedO
 				-- Look for type/subtype match
 				local nMatch = 0;
 				for kEffectComp, sEffectComp in ipairs(aEffectComps) do
-					local rEffectComp = parseEffectComp(sEffectComp);
+					local rEffectComp = EffectManager35E.parseEffectComp(sEffectComp);
 					-- Handle conditionals
 					if rEffectComp.type == "IF" then
-						if not checkConditional(rActor, v, rEffectComp.remainder) then
+						if not EffectManager35E.checkConditional(rActor, v, rEffectComp.remainder) then
 							break;
 						end
 					elseif rEffectComp.type == "IFT" then
 						if not rFilterActor then
 							break;
 						end
-						if not checkConditional(rFilterActor, v, rEffectComp.remainder, rActor) then
+						if not EffectManager35E.checkConditional(rFilterActor, v, rEffectComp.remainder, rActor) then
 							break;
 						end
 						bTargeted = true;
@@ -445,7 +212,7 @@ function getEffectsBonusByType(rActor, aEffectType, bAddEmptyBonus, aFilter, rFi
 	
 	for k, v in pairs(aEffectType) do
 		-- LOOK FOR EFFECTS THAT MATCH BONUSTYPE
-		local aEffectsByType = getEffectsByType(rActor, v, aFilter, rFilterActor, bTargetedOnly);
+		local aEffectsByType = EffectManager35EDS.getEffectsByType(rActor, v, aFilter, rFilterActor, bTargetedOnly);
 
 		-- ITERATE THROUGH EFFECTS THAT MATCHED
 		for k2,v2 in pairs(aEffectsByType) do
@@ -552,7 +319,7 @@ function getEffectsBonus(rActor, aEffectType, bModOnly, aFilter, rFilterActor, b
 	local masterpenalties = {};
 	for k, v in pairs(aEffectType) do
 		-- GET THE MODIFIERS FOR THIS MODIFIER TYPE
-		local effbonusbytype, nEffectSubCount = getEffectsBonusByType(rActor, v, true, aFilter, rFilterActor, bTargetedOnly);
+		local effbonusbytype, nEffectSubCount = EffectManager35EDS.getEffectsBonusByType(rActor, v, true, aFilter, rFilterActor, bTargetedOnly);
 		
 		-- ITERATE THROUGH THE MODIFIERS
 		for k2, v2 in pairs(effbonusbytype) do
@@ -593,10 +360,6 @@ function getEffectsBonus(rActor, aEffectType, bModOnly, aFilter, rFilterActor, b
 	return aTotalDice, nTotalMod, nEffectCount;
 end
 
-function hasEffectCondition(rActor, sEffect)
-	return hasEffect(rActor, sEffect, nil, false, true);
-end
-
 function hasEffect(rActor, sEffect, rTarget, bTargetedOnly, bIgnoreEffectTargets)
 	if not sEffect or not rActor then
 		return false;
@@ -608,6 +371,7 @@ function hasEffect(rActor, sEffect, rTarget, bTargetedOnly, bIgnoreEffectTargets
 	for _,v in pairs(DB.getChildren(ActorManager.getCTNode(rActor), "effects")) do
 		local nActive = DB.getValue(v, "isactive", 0);
 		if nActive ~= 0 then
+			-- Debug.chat(rActor, sEffect, rTarget, bTargetedOnly, bIgnoreEffectTargets)
 			-- Parse each effect label
 			local sLabel = DB.getValue(v, "label", "");
 			local bTargeted = EffectManager.isTargetedEffect(v);
@@ -616,17 +380,17 @@ function hasEffect(rActor, sEffect, rTarget, bTargetedOnly, bIgnoreEffectTargets
 			-- Iterate through each effect component looking for a type match
 			local nMatch = 0;
 			for kEffectComp, sEffectComp in ipairs(aEffectComps) do
-				local rEffectComp = parseEffectComp(sEffectComp);
+				local rEffectComp = EffectManager35E.parseEffectComp(sEffectComp);
 				-- Check conditionals
 				if rEffectComp.type == "IF" then
-					if not checkConditional(rActor, v, rEffectComp.remainder) then
+					if not EffectManager35E.checkConditional(rActor, v, rEffectComp.remainder) then
 						break;
 					end
 				elseif rEffectComp.type == "IFT" then
 					if not rTarget then
 						break;
 					end
-					if not checkConditional(rTarget, v, rEffectComp.remainder, rActor) then
+					if not EffectManager35E.checkConditional(rTarget, v, rEffectComp.remainder, rActor) then
 						break;
 					end
 				
@@ -668,120 +432,6 @@ function hasEffect(rActor, sEffect, rTarget, bTargetedOnly, bIgnoreEffectTargets
 	return false;
 end
 
-function checkConditional(rActor, nodeEffect, aConditions, rTarget, aIgnore)
-	local bReturn = true;
-	
-	if not aIgnore then
-		aIgnore = {};
-	end
-	table.insert(aIgnore, nodeEffect.getPath());
-	
-	for _,v in ipairs(aConditions) do
-		local sLower = v:lower();
-		if sLower == DataCommon.healthstatusfull then
-			local _,_,nPercentLethal = ActorManager35E.getWoundPercent(rActor);
-			if nPercentLethal > 0 then
-				bReturn = false;
-				break;
-			end
-		elseif sLower == DataCommon.healthstatushalf then
-			local _,_,nPercentLethal = ActorManager35E.getWoundPercent(rActor);
-			if nPercentLethal < .5 then
-				bReturn = false;
-				break;
-			end
-		elseif sLower == DataCommon.healthstatuswounded then
-			local _,_,nPercentLethal = ActorManager35E.getWoundPercent(rActor);
-			if nPercentLethal == 0 then
-				bReturn = false;
-				break;
-			end
-		elseif StringManager.contains(DataCommon.conditions, sLower) then
-			if not checkConditionalHelper(rActor, sLower, rTarget, aIgnore) then
-				bReturn = false;
-				break;
-			end
-		elseif StringManager.contains(DataCommon.conditionaltags, sLower) then
-			if not checkConditionalHelper(rActor, sLower, rTarget, aIgnore) then
-				bReturn = false;
-				break;
-			end
-		else
-			local sAlignCheck = sLower:match("^align%s*%(([^)]+)%)$");
-			local sSizeCheck = sLower:match("^size%s*%(([^)]+)%)$");
-			local sTypeCheck = sLower:match("^type%s*%(([^)]+)%)$");
-			local sCustomCheck = sLower:match("^custom%s*%(([^)]+)%)$");
-			if sAlignCheck then
-				if not ActorManager35E.isAlignment(rActor, sAlignCheck) then
-					bReturn = false;
-					break;
-				end
-			elseif sSizeCheck then
-				if not ActorManager35E.isSize(rActor, sSizeCheck) then
-					bReturn = false;
-					break;
-				end
-			elseif sTypeCheck then
-				if not ActorManager35E.isCreatureType(rActor, sTypeCheck) then
-					bReturn = false;
-					break;
-				end
-			elseif sCustomCheck then
-				if not checkConditionalHelper(rActor, sCustomCheck, rTarget, aIgnore) then
-					bReturn = false;
-					break;
-				end
-			end
-		end
-	end
-	
-	table.remove(aIgnore);
-	
-	return bReturn;
-end
-
-function checkConditionalHelper(rActor, sEffect, rTarget, aIgnore)
-	if not rActor then
-		return false;
-	end
-	
-	for _,v in pairs(DB.getChildren(ActorManager.getCTNode(rActor), "effects")) do
-		local nActive = DB.getValue(v, "isactive", 0);
-		if nActive ~= 0 and not StringManager.contains(aIgnore, v.getPath()) then
-			-- Parse each effect label
-			local sLabel = DB.getValue(v, "label", "");
-			local aEffectComps = EffectManager.parseEffect(sLabel);
-
-			-- Iterate through each effect component looking for a type match
-			for _,sEffectComp in ipairs(aEffectComps) do
-				local rEffectComp = parseEffectComp(sEffectComp);
-				
-				--Check conditionals
-				if rEffectComp.type == "IF" then
-					if not checkConditional(rActor, v, rEffectComp.remainder, nil, aIgnore) then
-						break;
-					end
-				elseif rEffectComp.type == "IFT" then
-					if not rTarget then
-						break;
-					end
-					if not checkConditional(rTarget, v, rEffectComp.remainder, rActor, aIgnore) then
-						break;
-					end
-				
-				-- Check for match
-				elseif rEffectComp.original:lower() == sEffect then
-					if EffectManager.isTargetedEffect(v) then
-						if EffectManager.isEffectTarget(v, rTarget) then
-							return true;
-						end
-					else
-						return true;
-					end
-				end
-			end
-		end
-	end
-	
-	return false;
+function hasEffectCondition(rActor, sEffect)
+	return EffectManager35EDS.hasEffect(rActor, sEffect, nil, false, true);
 end
