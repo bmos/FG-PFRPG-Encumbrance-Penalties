@@ -68,7 +68,6 @@ local function getStrEffectBonus(rActor, nodeChar)
 
 	DB.setValue(nodeChar, 'encumbrance.strbonusfromeffects', 'number', nStrEffectMod)
 
-	-- Debug.chat('Fatigued', EffectManager35EDS.hasEffectCondition(rActor, 'Fatigued'), nStrEffectMod)
 	return nStrEffectMod
 end
 
