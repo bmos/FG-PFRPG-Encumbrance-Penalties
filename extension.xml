@@ -8,8 +8,12 @@
 		<version>1.0</version>
 		<author>bmos (Wil Thieme)</author>
 		<description>rThis extension applies encumbrance penalties, weighs PC coins, calculates character wealth, automates bypassing weight for bag of holding contents, counts the capacity of some containers, offers metric unit conversion, and recalculates carrying capacity taking into account STR effects and Ant Haul.</description>
-		<ruleset name="PFRPG" />
-		<ruleset name="3.5E" />
+		<ruleset>
+			<name>3.5E</name>
+		</ruleset>
+		<ruleset>
+			<name>PFRPG</name>
+		</ruleset>
 	</properties>
 
 	<announcement text="PFRPG Encumbrance Penalties v1.0:\rThis extension applies encumbrance penalties and recalculates carrying capacity taking into account STR effects and Ant Haul." icon="EncumberedGuy" font="emotefont" />
