@@ -21,33 +21,20 @@ local function encumbrancePenalties(nodeChar)
 	local medium = DB.getValue(nodeChar, "encumbrance.mediumload", 0)
 	local total = DB.getValue(nodeChar, "encumbrance.load", 0)
 
+	local nEncumbranceLevel = 0
+	local nMaxStat, nCheckPenalty
 	if total > medium then -- heavy load
-		DB.setValue(nodeChar, "encumbrance.encumbrancelevel", "number", 2)
-		return TEGlobals.nHeavyMaxStat, TEGlobals.nHeavyCheckPenalty
+		nEncumbranceLevel = 2
+		nMaxStat = TEGlobals.nHeavyMaxStat
+		nCheckPenalty = TEGlobals.nHeavyCheckPenalty
 	elseif total > light then -- medium load
-		DB.setValue(nodeChar, "encumbrance.encumbrancelevel", "number", 1)
-		return TEGlobals.nMediumMaxStat, TEGlobals.nMediumCheckPenalty
-	else -- light load
-		DB.setValue(nodeChar, "encumbrance.encumbrancelevel", "number", 0)
-		return nil, nil
+		nEncumbranceLevel = 1
+		nMaxStat = TEGlobals.nMediumMaxStat
+		nCheckPenalty = TEGlobals.nMediumCheckPenalty
 	end
-end
-
----	This function checks for special abilities.
-local function hasSpecialAbility(nodeChar, sSpecAbil)
-	if not nodeChar or not sSpecAbil then
-		return false
-	end
-
-	local sLowerSpecAbil = string.lower(sSpecAbil)
-	for _,vNode in pairs(DB.getChildren(nodeChar, "specialabilitylist")) do
-		local vLowerSpecAbilName = StringManager.trim(DB.getValue(vNode, "name", ""):lower());
-		if vLowerSpecAbilName and string.match(vLowerSpecAbilName, sLowerSpecAbil .. " %d+", 1) or string.match(vLowerSpecAbilName, sLowerSpecAbil, 1) then
-			return true
-		end
-	end
-
-	return false
+	
+	DB.setValue(nodeChar, "encumbrance.encumbrancelevel", "number", nEncumbranceLevel)
+	return nMaxStat, nCheckPenalty
 end
 
 local function isSpeedHalved(rActor)
@@ -65,8 +52,23 @@ local function isSpeedNone(rActor)
 		or EffectManager35EDS.hasEffectCondition(rActor, "Pinned")
 end
 
---	Summary: Determine the total bonus to character"s speed from effects
---	Argument: rActor containing the PC"s charsheet and combattracker nodes
+---	This function checks for special abilities.
+local function hasSpecialAbility(nodeChar, sSpecAbil)
+	if not nodeChar or not sSpecAbil then
+		return false
+	end
+
+	local sLowerSpecAbil = string.lower(sSpecAbil)
+	for _,vNode in pairs(DB.getChildren(nodeChar, "specialabilitylist")) do
+		local vLowerSpecAbilName = StringManager.trim(DB.getValue(vNode, "name", ""):lower());
+		if vLowerSpecAbilName and string.find(vLowerSpecAbilName, sLowerSpecAbil, 0) then
+			return true
+		end
+	end
+end
+
+--	Summary: Determine the total bonus to character's speed from effects
+--	Argument: rActor containing the PC's charsheet and combattracker nodes
 --	Return: total bonus to speed from effects formatted as "SPEED: n" in the combat tracker
 local function getSpeedEffects(nodeChar)
 	local rActor = ActorManager.resolveActor(nodeChar)
@@ -82,9 +84,19 @@ local function getSpeedEffects(nodeChar)
 		bSpeedHalved = true
 	end
 
-	local nSpeedAdjFromEffects = EffectManager35EDS.getEffectsBonus(rActor, "SPEED", true)
+	--	Check if the character has fast movement ability
+	local nSpeedAdj = 0
+	if hasSpecialAbility(nodeChar, "Fast Movement") then
+		local bEncumberedH = (DB.getValue(nodeChar, "encumbrance.encumbrancelevel", 0) == 2)
+		local bArmorH = (DB.getValue(nodeChar, "encumbrance.armortype", 0) == 2)
+		if not bEncumberedH and not bArmorH then
+			nSpeedAdj = nSpeedAdj + 10
+		end
+	end
 
-	return nSpeedAdjFromEffects, bSpeedHalved, bSpeedZero
+	nSpeedAdj = nSpeedAdj + EffectManager35EDS.getEffectsBonus(rActor, "SPEED", true)
+
+	return nSpeedAdj, bSpeedHalved, bSpeedZero
 end
 
 function calcItemArmorClass_new(nodeChar)
@@ -95,17 +107,14 @@ function calcItemArmorClass_new(nodeChar)
 	local nMainSpellFailure = 0
 	local nMainSpeed30 = 0
 	local nMainSpeed20 = 0
+	local bArmorLM = false
+	local bArmorH = false
 
 	for _,vNode in pairs(DB.getChildren(nodeChar, "inventorylist")) do
 		if DB.getValue(vNode, "carried", 0) == 2 then
 			local bIsArmor, _, sSubtypeLower = ItemManager2.isArmor(vNode)
 			if bIsArmor then
 				local bID = LibraryData.getIDState("item", vNode, true)
-
-				local nFighterLevel = DB.getValue(CharManager.getClassNode(nodeChar, "Fighter"), "level", 0)
-				local bArmorTraining = (hasSpecialAbility(nodeChar, "Armor Training") and nFighterLevel >= 3)
-				local bArmorTrainingH = (bArmorTraining and nFighterLevel >= 7)
-				local bAdvArmorTraining = (hasSpecialAbility(nodeChar, "Advanced Armor Training"))
 
 				local bIsShield = (sSubtypeLower == "shield")
 				if bIsShield then
@@ -121,8 +130,12 @@ function calcItemArmorClass_new(nodeChar)
 						nMainArmorTotal = nMainArmorTotal + DB.getValue(vNode, "ac", 0)
 					end
 
-					local bArmorLM = (sSubtypeLower == "light" or sSubtypeLower == "medium")
-					local bArmorH = (sSubtypeLower == "heavy")
+					if (sSubtypeLower == "heavy") then
+						bArmorH = true
+					end
+					if (sSubtypeLower == "light" or sSubtypeLower == "medium") then
+						bArmorLM = true
+					end
 
 					local nItemSpeed30 = DB.getValue(vNode, "speed30", 0)
 					if (nItemSpeed30 > 0) and (nItemSpeed30 < 30) then
@@ -145,6 +158,11 @@ function calcItemArmorClass_new(nodeChar)
 						end
 					end
 				end
+
+				local nFighterLevel = DB.getValue(CharManager.getClassNode(nodeChar, "Fighter"), "level", 0)
+				local bArmorTraining = (hasSpecialAbility(nodeChar, "Armor Training") and nFighterLevel >= 3)
+				local bArmorTrainingH = (bArmorTraining and nFighterLevel >= 7)
+				local bAdvArmorTraining = (hasSpecialAbility(nodeChar, "Advanced Armor Training"))
 
 				local nMaxStatBonus = DB.getValue(vNode, "maxstatbonus", 0)
 				if nMaxStatBonus > 0 then
@@ -198,6 +216,14 @@ function calcItemArmorClass_new(nodeChar)
 				if nSpellFailure > 0 then nMainSpellFailure = nMainSpellFailure + nSpellFailure end
 			end
 		end
+	end
+
+	if bArmorH then
+		DB.setValue(nodeChar, 'encumbrance.armortype', 'number', 2)
+	elseif bArmorLM then
+		DB.setValue(nodeChar, 'encumbrance.armortype', 'number', 1)
+	else
+		DB.setValue(nodeChar, 'encumbrance.armortype', 'number', 0)
 	end
 
 	--	Bring in encumbrance penalties
@@ -260,10 +286,8 @@ function calcItemArmorClass_new(nodeChar)
 		end
 
 		local nEncumbranceLevel = DB.getValue(nodeChar, "encumbrance.encumbrancelevel", 0)
-
 		if nEncumbranceLevel >= 1 then
-			if (nSpeedArmor ~= 0) and (nSpeedPenaltyFromEnc ~= 0)
-			then
+			if (nSpeedArmor ~= 0) and (nSpeedPenaltyFromEnc ~= 0) then
 				nSpeedArmor = math.min(nSpeedPenaltyFromEnc, nSpeedArmor)
 			elseif nSpeedPenaltyFromEnc then
 				nSpeedArmor = nSpeedPenaltyFromEnc
