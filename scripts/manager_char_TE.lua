@@ -90,6 +90,7 @@ local function getSpeedEffects(nodeChar)
 		local bEncumberedH = (DB.getValue(nodeChar, "encumbrance.encumbrancelevel", 0) == 2)
 		local bArmorH = (DB.getValue(nodeChar, "encumbrance.armortype", 0) == 2)
 		if not bEncumberedH and not bArmorH then
+			nSpeedAdj = nSpeedAdj + 10
 			DB.setValue(nodeChar, "speed.fastmovement", "number", 10)
 		else
 			DB.setValue(nodeChar, "speed.fastmovement", "number", 0)
