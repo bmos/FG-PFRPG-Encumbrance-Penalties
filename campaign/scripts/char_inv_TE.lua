@@ -23,7 +23,7 @@ function onInit()
 	onEncumbranceChanged()
 
 	local nodePC = getDatabaseNode()
-	DB.addHandler(DB.getPath(nodePC, 'abilities.strength'), 'onChildUpdate', onEncumbranceChanged)
+	DB.addHandler(DB.getPath(nodePC, 'abilities.strength'), 'onChildUpdate', onStrengthChanged)
 	DB.addHandler(DB.getPath(nodePC, 'size'), 'onUpdate', onEncumbranceChanged)
 	DB.addHandler(DB.getPath(nodePC, 'encumbrance.carrymult'), 'onUpdate', onStrengthChanged)
 	DB.addHandler(DB.getPath(nodePC, 'encumbrance.stradj'), 'onUpdate', onStrengthChanged)
@@ -36,7 +36,7 @@ end
 
 function onClose()
 	local nodePC = getDatabaseNode()
-	DB.removeHandler(DB.getPath(nodePC, 'abilities.strength'), 'onChildUpdate', onEncumbranceChanged)
+	DB.removeHandler(DB.getPath(nodePC, 'abilities.strength'), 'onChildUpdate', onStrengthChanged)
 	DB.removeHandler(DB.getPath(nodePC, 'size'), 'onUpdate', onEncumbranceChanged)
 	DB.removeHandler(DB.getPath(nodePC, 'encumbrance.carrymult'), 'onUpdate', onStrengthChanged)
 	DB.removeHandler(DB.getPath(nodePC, 'encumbrance.stradj'), 'onUpdate', onStrengthChanged)
