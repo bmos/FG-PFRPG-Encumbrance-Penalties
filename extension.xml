@@ -14,6 +14,7 @@
 		<ruleset>
 			<name>PFRPG</name>
 		</ruleset>
+		<loadorder>2</loadorder>
 	</properties>
 
 	<announcement text="PFRPG Encumbrance Penalties v1.2:\rThis extension applies encumbrance penalties and recalculates carrying capacity taking into account STR effects and Ant Haul." icon="EncumberedGuy" font="emotefont" />
