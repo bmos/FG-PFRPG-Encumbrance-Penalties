@@ -17,7 +17,7 @@
 		<loadorder>2</loadorder>
 	</properties>
 
-	<announcement text="PFRPG Encumbrance Penalties v1.3:\rThis extension applies encumbrance penalties and recalculates carrying capacity taking into account STR effects and Ant Haul." icon="EncumberedGuy" font="emotefont" />
+	<announcement text="PFRPG Encumbrance Penalties v1.3-hotfix.1:\rThis extension applies encumbrance penalties and recalculates carrying capacity taking into account STR effects and Ant Haul." icon="EncumberedGuy" font="emotefont" />
 
 	<base>
 		<!-- Icon -->

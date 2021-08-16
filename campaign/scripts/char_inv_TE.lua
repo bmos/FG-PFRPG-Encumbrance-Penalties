@@ -17,6 +17,7 @@ end
 local function onStrengthChanged()
 	-- Debug.chat(getDatabaseNode())
 	onEncumbranceChanged(getDatabaseNode())
+	CharManager.calcItemArmorClass(getDatabaseNode())
 end
 
 function onInit()
