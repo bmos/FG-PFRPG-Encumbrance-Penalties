@@ -307,8 +307,8 @@ function calcItemArmorClass_new(nodeChar)
 end
 
 local updateEncumbrance_old
-local function updateEncumbrance_new(nodeChar)
-	updateEncumbrance_old(nodeChar)
+local function updateEncumbrance_new(nodeChar, ...)
+	updateEncumbrance_old(nodeChar, ...)
 	calcItemArmorClass_new(nodeChar)
 end
 
