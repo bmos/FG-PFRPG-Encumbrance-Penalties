@@ -23,12 +23,12 @@
 						local nMaxStat = DB.getValue(getDatabaseNode().getParent(), 'armormaxstatbonus')
 						local nMaxStatFromEnc = DB.getValue(getDatabaseNode().getParent(), 'maxstatbonusfromenc')
 						if window.usearmormaxstatbonus.getValue() == 0 then
-							window.armormaxstatbonus.setColor('7F000000')
+							window.armormaxstatbonus.setColor(ColorManager.COLOR_FULL)
 						else
 							if nMaxStatFromEnc == nMaxStat then
-								window.armormaxstatbonus.setColor('FFB22929')
+								window.armormaxstatbonus.setColor(ColorManager.COLOR_HEALTH_CRIT_WOUNDS)
 							else
-								window.armormaxstatbonus.setColor('FF000000')
+								window.armormaxstatbonus.setColor(ColorManager.COLOR_FULL)
 							end
 						end
 					end
@@ -46,12 +46,12 @@
 						local nCheckPenalty = DB.getValue(getDatabaseNode().getParent(), 'armorcheckpenalty')
 						local nCheckPenaltyFromEnc = DB.getValue(getDatabaseNode().getParent(), 'checkpenaltyfromenc')
 						if window.usearmormaxstatbonus.getValue() == 0 then
-							window.armorcheckpenalty.setColor('7F000000')
+							window.armorcheckpenalty.setColor(ColorManager.COLOR_FULL)
 						else
 							if nCheckPenaltyFromEnc == nCheckPenalty then
-								window.armorcheckpenalty.setColor('FFB22929')
+								window.armorcheckpenalty.setColor(ColorManager.COLOR_HEALTH_CRIT_WOUNDS)
 							else
-								window.armorcheckpenalty.setColor('FF000000')
+								window.armorcheckpenalty.setColor(ColorManager.COLOR_FULL)
 							end
 						end
 					end
