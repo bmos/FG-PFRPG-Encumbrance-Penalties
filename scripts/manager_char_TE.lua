@@ -25,6 +25,10 @@ local function encumbrancePenalties(nodeChar)
 	local nEncumbranceLevel = 0
 	local nMaxStat, nCheckPenalty
 	if total > (heavy * 2) then -- can't move
+		nEncumbranceLevel = 4
+		nMaxStat = TEGlobals.nOverloadedMaxStat
+		nCheckPenalty = TEGlobals.nHeavyCheckPenalty
+	elseif total > heavy and (total <= (heavy * 2)) then -- over-loaded
 		nEncumbranceLevel = 3
 		nMaxStat = TEGlobals.nOverloadedMaxStat
 		nCheckPenalty = TEGlobals.nHeavyCheckPenalty
@@ -308,7 +312,8 @@ function calcItemArmorClass_new(nodeChar)
 	DB.setValue(nodeChar, "speed.armor", "number", nSpeedArmor)
 	local nSpeedTotal = nSpeedBase + nSpeedArmor + DB.getValue(nodeChar, "speed.misc", 0) + DB.getValue(nodeChar, "speed.temporary", 0) + nSpeedAdjFromEffects
 	if bSpeedHalved then nSpeedTotal = nSpeedTotal / 2 elseif bSpeedZero then nSpeedTotal = 0 end
-	if (nEncumbranceLevel == 3) and (nSpeedTotal > 5) then nSpeedTotal == 5 end
+	-- speed limits for overloaded characters
+	if (nEncumbranceLevel == 4) then nSpeedTotal == 0; elseif (nEncumbranceLevel == 3) and (nSpeedTotal > 5) then nSpeedTotal == 5 end
 	DB.setValue(nodeChar, "speed.total", "number", nSpeedTotal)
 end
 
