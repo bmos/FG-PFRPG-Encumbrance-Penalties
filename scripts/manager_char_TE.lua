@@ -28,7 +28,7 @@ local function encumbrancePenalties(nodeChar)
 		nEncumbranceLevel = 3
 		nMaxStat = TEGlobals.nOverloadedMaxStat
 		nCheckPenalty = TEGlobals.nHeavyCheckPenalty
-	if total > medium then -- heavy encumbrance
+	elseif total > medium then -- heavy encumbrance
 		nEncumbranceLevel = 2
 		nMaxStat = TEGlobals.nHeavyMaxStat
 		nCheckPenalty = TEGlobals.nHeavyCheckPenalty
