@@ -24,7 +24,7 @@ local function encumbrancePenalties(nodeChar)
 
 	local nEncumbranceLevel = 0
 	local nMaxStat, nCheckPenalty
-	if total > heavy then -- over-loaded
+	if total > (heavy * 2) then -- can't move
 		nEncumbranceLevel = 3
 		nMaxStat = TEGlobals.nOverloadedMaxStat
 		nCheckPenalty = TEGlobals.nHeavyCheckPenalty
