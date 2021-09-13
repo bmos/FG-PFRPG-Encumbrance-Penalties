@@ -19,15 +19,20 @@ end
 local function encumbrancePenalties(nodeChar)
 	local light = DB.getValue(nodeChar, "encumbrance.lightload", 0)
 	local medium = DB.getValue(nodeChar, "encumbrance.mediumload", 0)
+	local heavy = DB.getValue(nodeChar, "encumbrance.heavyload", 0)
 	local total = DB.getValue(nodeChar, "encumbrance.load", 0)
 
 	local nEncumbranceLevel = 0
 	local nMaxStat, nCheckPenalty
-	if total > medium then -- heavy load
+	if total > heavy then -- over-loaded
+		nEncumbranceLevel = 3
+		nMaxStat = TEGlobals.nOverloadedMaxStat
+		nCheckPenalty = TEGlobals.nHeavyCheckPenalty
+	if total > medium then -- heavy encumbrance
 		nEncumbranceLevel = 2
 		nMaxStat = TEGlobals.nHeavyMaxStat
 		nCheckPenalty = TEGlobals.nHeavyCheckPenalty
-	elseif total > light then -- medium load
+	elseif total > light then -- medium encumbrance
 		nEncumbranceLevel = 1
 		nMaxStat = TEGlobals.nMediumMaxStat
 		nCheckPenalty = TEGlobals.nMediumCheckPenalty
@@ -87,7 +92,7 @@ local function getSpeedEffects(nodeChar)
 	--	Check if the character has fast movement ability
 	local nSpeedAdj = 0
 	if hasSpecialAbility(nodeChar, "Fast Movement") then
-		local bEncumberedH = (DB.getValue(nodeChar, "encumbrance.encumbrancelevel", 0) == 2)
+		local bEncumberedH = (DB.getValue(nodeChar, "encumbrance.encumbrancelevel", 0) >= 2)
 		local bArmorH = (DB.getValue(nodeChar, "encumbrance.armortype", 0) == 2)
 		if not bEncumberedH and not bArmorH then
 			nSpeedAdj = nSpeedAdj + 10
@@ -303,6 +308,7 @@ function calcItemArmorClass_new(nodeChar)
 	DB.setValue(nodeChar, "speed.armor", "number", nSpeedArmor)
 	local nSpeedTotal = nSpeedBase + nSpeedArmor + DB.getValue(nodeChar, "speed.misc", 0) + DB.getValue(nodeChar, "speed.temporary", 0) + nSpeedAdjFromEffects
 	if bSpeedHalved then nSpeedTotal = nSpeedTotal / 2 elseif bSpeedZero then nSpeedTotal = 0 end
+	if (nEncumbranceLevel == 3) and (nSpeedTotal > 5) then nSpeedTotal == 5 end
 	DB.setValue(nodeChar, "speed.total", "number", nSpeedTotal)
 end
 

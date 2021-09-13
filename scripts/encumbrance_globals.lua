@@ -19,6 +19,8 @@ function onInit()
 end
 
 --	Change the encumbrance penalties
+nOverloadedMaxStat = 0
+
 nHeavyMaxStat = 1
 nHeavyCheckPenalty = -6
 
