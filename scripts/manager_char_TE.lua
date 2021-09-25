@@ -313,7 +313,7 @@ function calcItemArmorClass_new(nodeChar)
 	local nSpeedTotal = nSpeedBase + nSpeedArmor + DB.getValue(nodeChar, "speed.misc", 0) + DB.getValue(nodeChar, "speed.temporary", 0) + nSpeedAdjFromEffects
 	if bSpeedHalved then nSpeedTotal = nSpeedTotal / 2 elseif bSpeedZero then nSpeedTotal = 0 end
 	-- speed limits for overloaded characters
-	if (nEncumbranceLevel == 4) then nSpeedTotal = 0; elseif (nEncumbranceLevel == 3) and (nSpeedTotal > 5) then nSpeedTotal == 5 end
+	if (nEncumbranceLevel == 4) then nSpeedTotal = 0; elseif (nEncumbranceLevel == 3) and (nSpeedTotal > 5) then nSpeedTotal = 5 end
 	DB.setValue(nodeChar, "speed.total", "number", nSpeedTotal)
 end
 
