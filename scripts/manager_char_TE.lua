@@ -350,7 +350,7 @@ function onInit()
 		DB.addHandler(DB.getPath('combattracker.list.*.effects'), 'onChildDeleted', onEffectRemoved)
 	end
 
-	updateEncumbrance_old = CharManager.updateEncumbrance;
-	CharManager.updateEncumbrance = updateEncumbrance_new;
+	updateEncumbrance_old = CharEncumbranceManager.updateEncumbrance;
+	CharEncumbranceManager.updateEncumbrance = updateEncumbrance_new;
 	CharManager.calcItemArmorClass = calcItemArmorClass_new;
 end
