@@ -68,9 +68,7 @@ local function isSpeedHalved(rActor)
 end
 
 local function isSpeedNone(rActor)
-	local sActorHealth = ActorHealthManager.getHealthStatus(rActor)
-	return sActorHealth == ActorHealthManager.STATUS_DEAD
-		or sActorHealth == ActorHealthManager.STATUS_DYING
+	return ActorHealthManager.isDyingOrDead(rActor)
 		or EffectManager35EDS.hasEffectCondition(rActor, "Grappled")
 		or EffectManager35EDS.hasEffectCondition(rActor, "Paralyzed")
 		or EffectManager35EDS.hasEffectCondition(rActor, "Petrified")
