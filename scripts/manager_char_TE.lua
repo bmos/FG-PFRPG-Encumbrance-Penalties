@@ -343,9 +343,9 @@ function onInit()
 		DB.addHandler(DB.getPath("charsheet.*.wounds"), "onChildUpdate", onHealthChanged)
 		DB.addHandler(DB.getPath("charsheet.*.speed.base"), "onUpdate", onSpeedChanged)
 
-		DB.addHandler(DB.getPath('combattracker.list.*.effects.*.label'), 'onUpdate', onEffectChanged)
-		DB.addHandler(DB.getPath('combattracker.list.*.effects.*.isactive'), 'onUpdate', onEffectChanged)
-		DB.addHandler(DB.getPath('combattracker.list.*.effects'), 'onChildDeleted', onEffectRemoved)
+		DB.addHandler(DB.getPath(CombatManager.CT_COMBATANT_PATH .. '.effects.*.label'), 'onUpdate', onEffectChanged)
+		DB.addHandler(DB.getPath(CombatManager.CT_COMBATANT_PATH .. '.effects.*.isactive'), 'onUpdate', onEffectChanged)
+		DB.addHandler(DB.getPath(CombatManager.CT_COMBATANT_PATH .. '.effects'), 'onChildDeleted', onEffectRemoved)
 	end
 
 	updateEncumbrance_old = CharEncumbranceManager.updateEncumbrance;
