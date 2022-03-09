@@ -36,7 +36,7 @@ local function encumbrancePenalties(nodeChar)
 	local light = DB.getValue(nodeChar, "encumbrance.lightload", 0)
 	local medium = DB.getValue(nodeChar, "encumbrance.mediumload", 0)
 	local heavy = DB.getValue(nodeChar, "encumbrance.heavyload", 0)
-	local total = DB.getValue(nodeChar, "encumbrance.load", 0)
+	local total = DB.getValue(nodeChar, CharEncumbranceManager.getEncumbranceField(), 0)
 
 	local nEncumbranceLevel = 0
 	local nMaxStat, nCheckPenalty
