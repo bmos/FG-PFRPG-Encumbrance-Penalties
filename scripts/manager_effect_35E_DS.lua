@@ -1,6 +1,8 @@
--- 
+--
 -- Please see the LICENSE.md file included with this distribution for attribution and copyright information.
 --
+
+-- luacheck: ignore
 
 -- bmos' list of changes to simplify maintenance:
 -- Removed onInit, parseEffectComp, rebuildParsedEffectComp, applyOngoingDamageAdjustment, checkConditional, and checkConditionalHelper functions
@@ -13,7 +15,7 @@ function getEffectsByType(rActor, sEffectType, aFilter, rFilterActor, bTargetedO
 		return {};
 	end
 	local results = {};
-	
+
 	-- Set up filters
 	local aRangeFilter = {};
 	local aOtherFilter = {};
@@ -28,10 +30,10 @@ function getEffectsByType(rActor, sEffectType, aFilter, rFilterActor, bTargetedO
 			end
 		end
 	end
-	
+
 	-- Determine effect type targeting
 	local bTargetSupport = StringManager.isWord(sEffectType, DataCommon.targetableeffectcomps);
-	
+
 	-- Iterate through effects
 	for _,v in pairs(DB.getChildren(ActorManager.getCTNode(rActor), "effects")) do
 		-- Check active
@@ -42,7 +44,7 @@ function getEffectsByType(rActor, sEffectType, aFilter, rFilterActor, bTargetedO
 			if not bTargeted or EffectManager.isEffectTarget(v, rFilterActor) then
 				local sLabel = DB.getValue(v, "label", "");
 				local aEffectComps = EffectManager.parseEffect(sLabel);
-				
+
 				-- Look for type/subtype match
 				local nMatch = 0;
 				for kEffectComp, sEffectComp in ipairs(aEffectComps) do
@@ -60,13 +62,13 @@ function getEffectsByType(rActor, sEffectType, aFilter, rFilterActor, bTargetedO
 							break;
 						end
 						bTargeted = true;
-					
+
 					-- Compare other attributes
 					else
 						-- Strip energy/bonus types for subtype comparison
 						local aEffectRangeFilter = {};
 						local aEffectOtherFilter = {};
-						
+
 						local aComponents = {};
 						for _,vPhrase in ipairs(rEffectComp.remainder) do
 							local nTempIndexOR = 0;
@@ -80,7 +82,7 @@ function getEffectsByType(rActor, sEffectType, aFilter, rFilterActor, bTargetedO
 									table.insert(aPhraseOR, vPhrase:sub(nTempIndexOR));
 								end
 							until nStartOR == nil;
-							
+
 							for _,vPhraseOR in ipairs(aPhraseOR) do
 								local nTempIndexAND = 0;
 								repeat
@@ -98,7 +100,7 @@ function getEffectsByType(rActor, sEffectType, aFilter, rFilterActor, bTargetedO
 						end
 						local j = 1;
 						while aComponents[j] do
-							if StringManager.contains(DataCommon.dmgtypes, aComponents[j]) or 
+							if StringManager.contains(DataCommon.dmgtypes, aComponents[j]) or
 									StringManager.contains(DataCommon.bonustypes, aComponents[j]) or
 									aComponents[j] == "all" then
 								-- Skip
@@ -107,10 +109,10 @@ function getEffectsByType(rActor, sEffectType, aFilter, rFilterActor, bTargetedO
 							else
 								table.insert(aEffectOtherFilter, aComponents[j]);
 							end
-							
+
 							j = j + 1;
 						end
-					
+
 						-- Check for match
 						local comp_match = false;
 						if rEffectComp.type == sEffectType then
@@ -121,7 +123,7 @@ function getEffectsByType(rActor, sEffectType, aFilter, rFilterActor, bTargetedO
 							else
 								comp_match = true;
 							end
-						
+
 							-- Check filters
 							if #aEffectRangeFilter > 0 then
 								local bRangeMatch = false;
@@ -189,7 +191,7 @@ function getEffectsByType(rActor, sEffectType, aFilter, rFilterActor, bTargetedO
 			end -- END TARGET CHECK
 		end  -- END ACTIVE CHECK
 	end  -- END EFFECT LOOP
-	
+
 	return results;
 end
 
@@ -197,18 +199,18 @@ function getEffectsBonusByType(rActor, aEffectType, bAddEmptyBonus, aFilter, rFi
 	if not rActor or not aEffectType then
 		return {}, 0;
 	end
-	
+
 	-- MAKE BONUS TYPE INTO TABLE, IF NEEDED
 	if type(aEffectType) ~= "table" then
 		aEffectType = { aEffectType };
 	end
-	
+
 	-- PER EFFECT TYPE VARIABLES
 	local results = {};
 	local bonuses = {};
 	local penalties = {};
 	local nEffectCount = 0;
-	
+
 	for k, v in pairs(aEffectType) do
 		-- LOOK FOR EFFECTS THAT MATCH BONUSTYPE
 		local aEffectsByType = EffectManager35EDS.getEffectsByType(rActor, v, aFilter, rFilterActor, bTargetedOnly);
@@ -227,17 +229,17 @@ function getEffectsBonusByType(rActor, aEffectType, bAddEmptyBonus, aFilter, rFi
 					break;
 				end
 			end
-			
+
 			-- IF MODIFIER TYPE IS UNTYPED, THEN APPEND MODIFIERS
 			-- (SUPPORTS DICE)
 			if dmg_type or not mod_type then
-				-- ADD EFFECT RESULTS 
+				-- ADD EFFECT RESULTS
 				local new_key = dmg_type or "";
 				local new_results = results[new_key] or {dice = {}, mod = 0, remainder = {}};
 
 				-- BUILD THE NEW RESULT
 				for _,v3 in pairs(v2.dice) do
-					table.insert(new_results.dice, v3); 
+					table.insert(new_results.dice, v3);
 				end
 				if bAddEmptyBonus then
 					new_results.mod = new_results.mod + v2.mod;
@@ -251,7 +253,7 @@ function getEffectsBonusByType(rActor, aEffectType, bAddEmptyBonus, aFilter, rFi
 				-- SET THE NEW DICE RESULTS BASED ON ENERGY TYPE
 				results[new_key] = new_results;
 
-			-- OTHERWISE, TRACK BONUSES AND PENALTIES BY MODIFIER TYPE 
+			-- OTHERWISE, TRACK BONUSES AND PENALTIES BY MODIFIER TYPE
 			-- (IGNORE DICE, ONLY TAKE BIGGEST BONUS AND/OR PENALTY FOR EACH MODIFIER TYPE)
 			else
 				local bStackable = StringManager.contains(DataCommon.stackablebonustypes, mod_type);
@@ -270,7 +272,7 @@ function getEffectsBonusByType(rActor, aEffectType, bAddEmptyBonus, aFilter, rFi
 				end
 
 			end
-			
+
 			-- INCREMENT EFFECT COUNT
 			nEffectCount = nEffectCount + 1;
 		end
@@ -352,7 +354,7 @@ function getEffectsBonus(rActor, aEffectType, bModOnly, aFilter, rFilterActor, b
 	for k,v in pairs(masterpenalties) do
 		nTotalMod = nTotalMod + v;
 	end
-	
+
 	if bModOnly then
 		return nTotalMod, nEffectCount;
 	end

@@ -2,30 +2,6 @@
 -- Please see the LICENSE.md file included with this distribution for attribution and copyright information.
 --
 
-local function onHealthChanged(node)
-	calcItemArmorClass_new(node.getParent())
-end
-
-local function onSpeedChanged(node)
-	calcItemArmorClass_new(node.getChild("..."))
-end
-
----	This function is called when effect components are changed.
-local function onEffectChanged(node)
-	local rActor = ActorManager.resolveActor(node.getChild('....'))
-	if ActorManager.isPC(rActor) then
-		calcItemArmorClass_new(ActorManager.getCreatureNode(rActor))
-	end
-end
-
----	This function is called when effects are removed.
-local function onEffectRemoved(node)
-	local rActor = ActorManager.resolveActor(node.getChild('..'))
-	if ActorManager.isPC(rActor) then
-		calcItemArmorClass_new(ActorManager.getCreatureNode(rActor))
-	end
-end
-
 --	Summary: Finds the max stat and check penalty penalties based on medium and heavy encumbrance thresholds based on current total encumbrance
 --	Argument: number light is medium encumbrance threshold for PC
 --	Argument: number medium is heavy encumbrance threshold for PC
@@ -57,7 +33,7 @@ local function encumbrancePenalties(nodeChar)
 		nMaxStat = TEGlobals.nMediumMaxStat
 		nCheckPenalty = TEGlobals.nMediumCheckPenalty
 	end
-	
+
 	DB.setValue(nodeChar, "encumbrance.encumbrancelevel", "number", nEncumbranceLevel)
 	return nMaxStat, nCheckPenalty
 end
@@ -127,7 +103,7 @@ local function getSpeedEffects(nodeChar)
 	return nSpeedAdj, bSpeedHalved, bSpeedZero
 end
 
-function calcItemArmorClass_new(nodeChar)
+local function calcItemArmorClass_new(nodeChar)
 	local nMainArmorTotal = 0
 	local nMainShieldTotal = 0
 	local nMainMaxStatBonus = 999
@@ -324,7 +300,13 @@ function calcItemArmorClass_new(nodeChar)
 	end
 
 	DB.setValue(nodeChar, "speed.armor", "number", nSpeedArmor)
-	local nSpeedTotal = nSpeedBase + nSpeedArmor + DB.getValue(nodeChar, "speed.misc", 0) + DB.getValue(nodeChar, "speed.temporary", 0) + nSpeedAdjFromEffects
+	local nSpeedTotal = (
+		nSpeedBase +
+		nSpeedArmor +
+		DB.getValue(nodeChar, "speed.misc", 0) +
+		DB.getValue(nodeChar, "speed.temporary", 0) +
+		nSpeedAdjFromEffects
+	)
 	if bSpeedHalved then nSpeedTotal = nSpeedTotal / 2 elseif bSpeedZero then nSpeedTotal = 0 end
 	-- speed limits for overloaded characters
 	if (nEncumbranceLevel == 4) then nSpeedTotal = 0; elseif (nEncumbranceLevel == 3) and (nSpeedTotal > 5) then nSpeedTotal = 5 end
@@ -335,6 +317,30 @@ local updateEncumbrance_old
 local function updateEncumbrance_new(nodeChar, ...)
 	updateEncumbrance_old(nodeChar, ...)
 	calcItemArmorClass_new(nodeChar)
+end
+
+local function onHealthChanged(node)
+	calcItemArmorClass_new(node.getParent())
+end
+
+local function onSpeedChanged(node)
+	calcItemArmorClass_new(node.getChild("..."))
+end
+
+---	This function is called when effect components are changed.
+local function onEffectChanged(node)
+	local rActor = ActorManager.resolveActor(node.getChild('....'))
+	if ActorManager.isPC(rActor) then
+		calcItemArmorClass_new(ActorManager.getCreatureNode(rActor))
+	end
+end
+
+---	This function is called when effects are removed.
+local function onEffectRemoved(node)
+	local rActor = ActorManager.resolveActor(node.getChild('..'))
+	if ActorManager.isPC(rActor) then
+		calcItemArmorClass_new(ActorManager.getCreatureNode(rActor))
+	end
 end
 
 function onInit()
