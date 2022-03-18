@@ -14,48 +14,12 @@
 				<default>999</default>
 				<min>0</min>
 				<max>999</max>
-				<script>
-					function onInit()
-						onValueChanged()
-					end
-
-					function onValueChanged()
-						local nMaxStat = DB.getValue(getDatabaseNode().getParent(), 'armormaxstatbonus')
-						local nMaxStatFromEnc = DB.getValue(getDatabaseNode().getParent(), 'maxstatbonusfromenc')
-						if window.usearmormaxstatbonus.getValue() == 0 then
-							window.armormaxstatbonus.setColor(ColorManager.COLOR_FULL)
-						else
-							if nMaxStatFromEnc == nMaxStat then
-								window.armormaxstatbonus.setColor(ColorManager.COLOR_HEALTH_CRIT_WOUNDS)
-							else
-								window.armormaxstatbonus.setColor(ColorManager.COLOR_FULL)
-							end
-						end
-					end
-				</script>
+				<script file="campaign/scripts/enc_colorcoding.lua" />
 			</basicnumber>
 			<basicnumber name="armorcheckpenalty">
 				<hideonvalue>0</hideonvalue>
 				<max>0</max>
-				<script>
-					function onInit()
-						onValueChanged()
-					end
-
-					function onValueChanged()
-						local nCheckPenalty = DB.getValue(getDatabaseNode().getParent(), 'armorcheckpenalty')
-						local nCheckPenaltyFromEnc = DB.getValue(getDatabaseNode().getParent(), 'checkpenaltyfromenc')
-						if window.usearmormaxstatbonus.getValue() == 0 then
-							window.armorcheckpenalty.setColor(ColorManager.COLOR_FULL)
-						else
-							if nCheckPenaltyFromEnc == nCheckPenalty then
-								window.armorcheckpenalty.setColor(ColorManager.COLOR_HEALTH_CRIT_WOUNDS)
-							else
-								window.armorcheckpenalty.setColor(ColorManager.COLOR_FULL)
-							end
-						end
-					end
-				</script>
+				<script file="campaign/scripts/enc_colorcoding.lua" />
 			</basicnumber>
 			<buttonfield name="usearmormaxstatbonus" source="encumbrance.armormaxstatbonusactive" insertbefore="encumbranceframe" merge="replace">
 				<anchored to="armorpenaltyframe" position="insidetopleft" offset="67,28" width="12" height="12" />
