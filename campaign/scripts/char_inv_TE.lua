@@ -1,52 +1,6 @@
--- 
+--
 --	Please see the LICENSE.md file included with this distribution for attribution and copyright information.
 --
-
-local function onEffectChanged()
-	local rActor = ActorManager.resolveActor(getDatabaseNode().getChild('...'))
-	local nodeChar = ActorManager.getCreatureNode(rActor)
-	onEncumbranceLimitChanged(nodeChar)
-end
-
-local function onEffectRemoved()
-	local rActor = ActorManager.resolveActor(getDatabaseNode().getParent())
-	local nodeChar = ActorManager.getCreatureNode(rActor)
-	onEncumbranceLimitChanged(nodeChar)
-end
-
-local function onStrengthChanged()
-	-- Debug.chat(getDatabaseNode())
-	onEncumbranceLimitChanged(getDatabaseNode())
-	CharManager.calcItemArmorClass(getDatabaseNode())
-end
-
-function onInit()
-	onEncumbranceLimitChanged()
-
-	local nodePC = getDatabaseNode()
-	DB.addHandler(DB.getPath(nodePC, 'abilities.strength'), 'onChildUpdate', onStrengthChanged)
-	DB.addHandler(DB.getPath(nodePC, 'size'), 'onUpdate', onEncumbranceLimitChanged)
-	DB.addHandler(DB.getPath(nodePC, 'encumbrance.carrymult'), 'onUpdate', onStrengthChanged)
-	DB.addHandler(DB.getPath(nodePC, 'encumbrance.stradj'), 'onUpdate', onStrengthChanged)
-
-	local nodeCT = ActorManager.getCTNode(ActorManager.resolveActor(nodePC))
-	DB.addHandler(DB.getPath(nodeCT, 'effects.*.label'), 'onUpdate', onEffectChanged)
-	DB.addHandler(DB.getPath(nodeCT, 'effects.*.isactive'), 'onUpdate', onEffectChanged)
-	DB.addHandler(DB.getPath(nodeCT, 'effects'), 'onChildDeleted', onEffectRemoved)
-end
-
-function onClose()
-	local nodePC = getDatabaseNode()
-	DB.removeHandler(DB.getPath(nodePC, 'abilities.strength'), 'onChildUpdate', onStrengthChanged)
-	DB.removeHandler(DB.getPath(nodePC, 'size'), 'onUpdate', onEncumbranceLimitChanged)
-	DB.removeHandler(DB.getPath(nodePC, 'encumbrance.carrymult'), 'onUpdate', onStrengthChanged)
-	DB.removeHandler(DB.getPath(nodePC, 'encumbrance.stradj'), 'onUpdate', onStrengthChanged)
-	
-	local nodeCT = ActorManager.getCTNode(ActorManager.resolveActor(nodePC))
-	DB.removeHandler(DB.getPath(nodeCT, 'effects.*.label'), 'onUpdate', onEffectChanged)
-	DB.removeHandler(DB.getPath(nodeCT, 'effects.*.isactive'), 'onUpdate', onEffectChanged)
-	DB.removeHandler(DB.getPath(nodeCT, 'effects'), 'onChildDeleted', onEffectRemoved)
-end
 
 ---	Determine the total bonus to carrying capacity from effects STR or CARRY
 --	@param rActor a table containing relevant paths and information on this PC
@@ -73,7 +27,6 @@ local function getStrEffectBonus(rActor, nodeChar)
 end
 
 function onEncumbranceLimitChanged(nodeChar)
-	local nodeChar = nodeChar or getDatabaseNode()
 	local rActor = ActorManager.resolveActor(nodeChar)
 
 	local nHeavy = 0
@@ -93,7 +46,7 @@ function onEncumbranceLimitChanged(nodeChar)
 	if EffectManager35EDS.hasEffectCondition(rActor, 'Paralyzed') then
 		nStrength = 0
 	end
-	
+
 	if nStrength > 0 then
 		if nStrength <= 10 then
 			nHeavy = nStrength * 10
@@ -101,7 +54,7 @@ function onEncumbranceLimitChanged(nodeChar)
 			nHeavy = 1.25 * math.pow(2, math.floor(nStrength / 5)) * math.floor((20 * math.pow(2, math.fmod(nStrength, 5) / 5)) + 0.5)
 		end
 	end
-	
+
 	nHeavy = math.floor(nHeavy * DB.getValue(nodeChar, 'encumbrance.carrymult', 1))
 
 	-- Check for carrying capacity multiplier attached to PC on combat tracker. If found, multiply their carrying capacity.
@@ -152,4 +105,50 @@ function onEncumbranceLimitChanged(nodeChar)
 	DB.setValue(nodeChar, 'encumbrance.liftoverhead', 'number', nLiftOver)
 	DB.setValue(nodeChar, 'encumbrance.liftoffground', 'number', nLiftOff)
 	DB.setValue(nodeChar, 'encumbrance.pushordrag', 'number', nPushDrag)
+end
+
+local function onEffectChanged()
+	local rActor = ActorManager.resolveActor(getDatabaseNode().getChild('...'))
+	local nodeChar = ActorManager.getCreatureNode(rActor)
+	onEncumbranceLimitChanged(nodeChar)
+end
+
+local function onEffectRemoved()
+	local rActor = ActorManager.resolveActor(getDatabaseNode().getParent())
+	local nodeChar = ActorManager.getCreatureNode(rActor)
+	onEncumbranceLimitChanged(nodeChar)
+end
+
+local function onStrengthChanged()
+	-- Debug.chat(getDatabaseNode())
+	onEncumbranceLimitChanged(getDatabaseNode())
+	CharManager.calcItemArmorClass(getDatabaseNode())
+end
+
+function onInit()
+	onEncumbranceLimitChanged(getDatabaseNode())
+
+	local nodePC = getDatabaseNode()
+	DB.addHandler(DB.getPath(nodePC, 'abilities.strength'), 'onChildUpdate', onStrengthChanged)
+	DB.addHandler(DB.getPath(nodePC, 'size'), 'onUpdate', onEncumbranceLimitChanged)
+	DB.addHandler(DB.getPath(nodePC, 'encumbrance.carrymult'), 'onUpdate', onStrengthChanged)
+	DB.addHandler(DB.getPath(nodePC, 'encumbrance.stradj'), 'onUpdate', onStrengthChanged)
+
+	local nodeCT = ActorManager.getCTNode(ActorManager.resolveActor(nodePC))
+	DB.addHandler(DB.getPath(nodeCT, 'effects.*.label'), 'onUpdate', onEffectChanged)
+	DB.addHandler(DB.getPath(nodeCT, 'effects.*.isactive'), 'onUpdate', onEffectChanged)
+	DB.addHandler(DB.getPath(nodeCT, 'effects'), 'onChildDeleted', onEffectRemoved)
+end
+
+function onClose()
+	local nodePC = getDatabaseNode()
+	DB.removeHandler(DB.getPath(nodePC, 'abilities.strength'), 'onChildUpdate', onStrengthChanged)
+	DB.removeHandler(DB.getPath(nodePC, 'size'), 'onUpdate', onEncumbranceLimitChanged)
+	DB.removeHandler(DB.getPath(nodePC, 'encumbrance.carrymult'), 'onUpdate', onStrengthChanged)
+	DB.removeHandler(DB.getPath(nodePC, 'encumbrance.stradj'), 'onUpdate', onStrengthChanged)
+
+	local nodeCT = ActorManager.getCTNode(ActorManager.resolveActor(nodePC))
+	DB.removeHandler(DB.getPath(nodeCT, 'effects.*.label'), 'onUpdate', onEffectChanged)
+	DB.removeHandler(DB.getPath(nodeCT, 'effects.*.isactive'), 'onUpdate', onEffectChanged)
+	DB.removeHandler(DB.getPath(nodeCT, 'effects'), 'onChildDeleted', onEffectRemoved)
 end
