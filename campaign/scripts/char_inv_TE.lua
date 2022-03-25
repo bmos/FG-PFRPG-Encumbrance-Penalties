@@ -1,14 +1,11 @@
 --
 --	Please see the LICENSE.md file included with this distribution for attribution and copyright information.
 --
-
 ---	Determine the total bonus to carrying capacity from effects STR or CARRY
 --	@param rActor a table containing relevant paths and information on this PC
 --	@return nStrEffectMod the PC's current strength score after all bonuses are applied
 local function getStrEffectBonus(rActor, nodeChar)
-	if not rActor then
-		return 0
-	end
+	if not rActor then return 0 end
 
 	local nStrEffectMod = EffectManager35EDS.getEffectsBonus(rActor, 'CARRY', true)
 	if EffectManager35EDS.hasEffectCondition(rActor, 'Exhausted') then
@@ -17,9 +14,7 @@ local function getStrEffectBonus(rActor, nodeChar)
 		nStrEffectMod = nStrEffectMod - 2
 	end
 	-- include STR effects in calculating carrying capacity
-	if not DataCommon.isPFRPG() then
-		nStrEffectMod = nStrEffectMod + (EffectManager35EDS.getEffectsBonus(rActor, 'STR', true) or 0)
-	end
+	if not DataCommon.isPFRPG() then nStrEffectMod = nStrEffectMod + (EffectManager35EDS.getEffectsBonus(rActor, 'STR', true) or 0) end
 
 	DB.setValue(nodeChar, 'encumbrance.strbonusfromeffects', 'number', nStrEffectMod)
 
@@ -43,9 +38,7 @@ function onEncumbranceLimitChanged(nodeChar)
 	end
 
 	nStrength = nStrength + getStrEffectBonus(rActor, nodeChar) - nStrengthDamage + DB.getValue(nodeChar, 'encumbrance.stradj', 0)
-	if EffectManager35EDS.hasEffectCondition(rActor, 'Paralyzed') then
-		nStrength = 0
-	end
+	if EffectManager35EDS.hasEffectCondition(rActor, 'Paralyzed') then nStrength = 0 end
 
 	if nStrength > 0 then
 		if nStrength <= 10 then
@@ -59,9 +52,7 @@ function onEncumbranceLimitChanged(nodeChar)
 
 	-- Check for carrying capacity multiplier attached to PC on combat tracker. If found, multiply their carrying capacity.
 	local nCarryMult = EffectManager35EDS.getEffectsBonus(rActor, 'CARRYMULT', true) or 0
-	if nCarryMult ~= 0 then
-		nHeavy = nHeavy * nCarryMult
-	end
+	if nCarryMult ~= 0 then nHeavy = nHeavy * nCarryMult end
 
 	local nLight = math.floor(nHeavy / 3)
 	local nMedium = math.floor((nHeavy / 3) * 2)
