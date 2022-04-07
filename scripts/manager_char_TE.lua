@@ -125,6 +125,11 @@ local function calcItemArmorClass_new(nodeChar)
 					if (sSubtypeLower == 'heavy') then bArmorH = true end
 					if (sSubtypeLower == 'light' or sSubtypeLower == 'medium') then bArmorLM = true end
 
+					local nFighterLevel = DB.getValue(CharManager.getClassNode(nodeChar, 'Fighter'), 'level', 0)
+					local bArmorTraining = (hasSpecialAbility(nodeChar, 'Armor Training') and nFighterLevel >= 3)
+					local bArmorTrainingH = (bArmorTraining and nFighterLevel >= 7)
+					local bAdvArmorTraining = (hasSpecialAbility(nodeChar, 'Advanced Armor Training'))
+	
 					local nItemSpeed30 = DB.getValue(vNode, 'speed30', 0)
 					if (nItemSpeed30 > 0) and (nItemSpeed30 < 30) then
 						if bArmorLM and bArmorTraining then nItemSpeed30 = 30 end
@@ -146,11 +151,6 @@ local function calcItemArmorClass_new(nodeChar)
 						end
 					end
 				end
-
-				local nFighterLevel = DB.getValue(CharManager.getClassNode(nodeChar, 'Fighter'), 'level', 0)
-				local bArmorTraining = (hasSpecialAbility(nodeChar, 'Armor Training') and nFighterLevel >= 3)
-				local bArmorTrainingH = (bArmorTraining and nFighterLevel >= 7)
-				local bAdvArmorTraining = (hasSpecialAbility(nodeChar, 'Advanced Armor Training'))
 
 				local nMaxStatBonus = DB.getValue(vNode, 'maxstatbonus', 0)
 				if nMaxStatBonus > 0 then
