@@ -248,14 +248,13 @@ local function calcItemArmorClass_new(nodeChar)
 	local nSpeedBase = DB.getValue(nodeChar, 'speed.base', 0)
 
 	-- compute speed including total encumberance speed penalty
-	local tEncumbranceSpeed = TEGlobals.tEncumbranceSpeed
 	local nSpeedTableIndex = nSpeedBase / 5
 
 	nSpeedTableIndex = nSpeedTableIndex + 0.5 - (nSpeedTableIndex + 0.5) % 1
 
 	local nSpeedPenaltyFromEnc = 0
 
-	if tEncumbranceSpeed[nSpeedTableIndex] then nSpeedPenaltyFromEnc = tEncumbranceSpeed[nSpeedTableIndex] - nSpeedBase end
+	if TEGlobals.tEncumbranceSpeed[nSpeedTableIndex] then nSpeedPenaltyFromEnc = TEGlobals.tEncumbranceSpeed[nSpeedTableIndex] - nSpeedBase end
 
 	local nSpeedArmor = 0
 
