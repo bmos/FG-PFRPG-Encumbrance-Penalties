@@ -186,7 +186,7 @@ local function calcItemArmorClass_new(nodeChar)
 		local medium = DB.getValue(nodeChar, 'encumbrance.mediumload', 0)
 		local heavy = DB.getValue(nodeChar, 'encumbrance.heavyload', 0)
 		local total = DB.getValue(nodeChar, CharEncumbranceManager.getEncumbranceField(), 0)
-	
+
 		local nEncumbranceLevel = 0
 		local nMaxStat, nCheckPenalty
 		if total > (heavy * 2) then -- can't move
@@ -206,7 +206,7 @@ local function calcItemArmorClass_new(nodeChar)
 			nMaxStat = TEGlobals.nMediumMaxStat
 			nCheckPenalty = TEGlobals.nMediumCheckPenalty
 		end
-	
+
 		DB.setValue(nodeChar, 'encumbrance.encumbrancelevel', 'number', nEncumbranceLevel)
 		return nMaxStat, nCheckPenalty
 	end
