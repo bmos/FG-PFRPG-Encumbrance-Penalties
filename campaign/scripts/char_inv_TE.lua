@@ -21,7 +21,7 @@ local function getStrEffectBonus(rActor, nodeChar)
 	return nStrEffectMod
 end
 
-function onEncumbranceLimitChanged(nodeChar)
+local function onEncumbranceLimitChanged(nodeChar)
 	local rActor = ActorManager.resolveActor(nodeChar)
 
 	local nHeavy = 0
@@ -110,7 +110,8 @@ local function onEffectRemoved()
 	onEncumbranceLimitChanged(nodeChar)
 end
 
-local function onStrengthChanged()
+-- luacheck: globals onStrengthChanged
+function onStrengthChanged()
 	-- Debug.chat(getDatabaseNode())
 	onEncumbranceLimitChanged(getDatabaseNode())
 	CharManager.calcItemArmorClass(getDatabaseNode())
