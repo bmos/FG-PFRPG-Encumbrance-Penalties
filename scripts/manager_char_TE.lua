@@ -1,51 +1,6 @@
 --
 -- Please see the LICENSE.md file included with this distribution for attribution and copyright information.
 --
---	Summary: Finds the max stat and check penalty penalties based on medium and heavy encumbrance thresholds based on current total encumbrance
---	Argument: number light is medium encumbrance threshold for PC
---	Argument: number medium is heavy encumbrance threshold for PC
---	Argument: number total is current total encumbrance for PC
---	Return: number for max stat penalty based solely on encumbrance (max stat, check penalty)
---	Return: number for check penalty penalty based solely on encumbrance (max stat, check penalty)
-local function encumbrancePenalties(nodeChar)
-	local light = DB.getValue(nodeChar, 'encumbrance.lightload', 0)
-	local medium = DB.getValue(nodeChar, 'encumbrance.mediumload', 0)
-	local heavy = DB.getValue(nodeChar, 'encumbrance.heavyload', 0)
-	local total = DB.getValue(nodeChar, CharEncumbranceManager.getEncumbranceField(), 0)
-
-	local nEncumbranceLevel = 0
-	local nMaxStat, nCheckPenalty
-	if total > (heavy * 2) then -- can't move
-		nEncumbranceLevel = 4
-		nMaxStat = TEGlobals.nOverloadedMaxStat
-		nCheckPenalty = TEGlobals.nHeavyCheckPenalty
-	elseif total > heavy and (total <= (heavy * 2)) then -- over-loaded
-		nEncumbranceLevel = 3
-		nMaxStat = TEGlobals.nOverloadedMaxStat
-		nCheckPenalty = TEGlobals.nHeavyCheckPenalty
-	elseif total > medium then -- heavy encumbrance
-		nEncumbranceLevel = 2
-		nMaxStat = TEGlobals.nHeavyMaxStat
-		nCheckPenalty = TEGlobals.nHeavyCheckPenalty
-	elseif total > light then -- medium encumbrance
-		nEncumbranceLevel = 1
-		nMaxStat = TEGlobals.nMediumMaxStat
-		nCheckPenalty = TEGlobals.nMediumCheckPenalty
-	end
-
-	DB.setValue(nodeChar, 'encumbrance.encumbrancelevel', 'number', nEncumbranceLevel)
-	return nMaxStat, nCheckPenalty
-end
-
-local function isSpeedHalved(rActor)
-	return EffectManager35EDS.hasEffectCondition(rActor, 'Exhausted') or EffectManager35EDS.hasEffectCondition(rActor, 'Entangled')
-end
-
-local function isSpeedNone(rActor)
-	return ActorHealthManager.isDyingOrDead(rActor) or EffectManager35EDS.hasEffectCondition(rActor, 'Grappled') or
-					       EffectManager35EDS.hasEffectCondition(rActor, 'Paralyzed') or
-					       EffectManager35EDS.hasEffectCondition(rActor, 'Petrified') or EffectManager35EDS.hasEffectCondition(rActor, 'Pinned')
-end
 
 ---	This function checks for special abilities.
 local function hasSpecialAbility(nodeChar, sSpecAbil)
@@ -65,8 +20,17 @@ local function getSpeedEffects(nodeChar)
 	local rActor = ActorManager.resolveActor(nodeChar)
 	if not rActor then return 0, false, false end
 
-	local bSpeedHalved = isSpeedHalved(rActor)
-	local bSpeedZero = isSpeedNone(rActor)
+	local function isSpeedHalved()
+		return EffectManager35EDS.hasEffectCondition(rActor, 'Exhausted') or EffectManager35EDS.hasEffectCondition(rActor, 'Entangled')
+	end
+	local bSpeedHalved = isSpeedHalved()
+
+	local function isSpeedNone()
+		return ActorHealthManager.isDyingOrDead(rActor) or EffectManager35EDS.hasEffectCondition(rActor, 'Grappled') or
+							EffectManager35EDS.hasEffectCondition(rActor, 'Paralyzed') or
+							EffectManager35EDS.hasEffectCondition(rActor, 'Petrified') or EffectManager35EDS.hasEffectCondition(rActor, 'Pinned')
+	end
+	local bSpeedZero = isSpeedNone()
 
 	--	Check if the character is disabled (at zero remaining hp)
 	if DB.getValue(nodeChar, 'hp.total', 0) == DB.getValue(nodeChar, 'hp.wounds', 0) then bSpeedHalved = true end
@@ -128,7 +92,7 @@ local function calcItemArmorClass_new(nodeChar)
 
 					if sSubtypeLower == 'heavy' then bArmorH = true end
 					if sSubtypeLower == 'light' or sSubtypeLower == 'medium' then bArmorLM = true end
-	
+
 					local nItemSpeed30 = DB.getValue(vNode, 'speed30', 0)
 					if (nItemSpeed30 > 0) and (nItemSpeed30 < 30) then
 						if bArmorLM and bArmorTraining then nItemSpeed30 = 30 end
@@ -211,8 +175,44 @@ local function calcItemArmorClass_new(nodeChar)
 		DB.setValue(nodeChar, 'encumbrance.armortype', 'number', 0)
 	end
 
+	--	Summary: Finds the max stat and check penalty penalties based on medium and heavy encumbrance thresholds based on current total encumbrance
+	--	Argument: number light is medium encumbrance threshold for PC
+	--	Argument: number medium is heavy encumbrance threshold for PC
+	--	Argument: number total is current total encumbrance for PC
+	--	Return: number for max stat penalty based solely on encumbrance (max stat, check penalty)
+	--	Return: number for check penalty penalty based solely on encumbrance (max stat, check penalty)
+	local function encumbrancePenalties()
+		local light = DB.getValue(nodeChar, 'encumbrance.lightload', 0)
+		local medium = DB.getValue(nodeChar, 'encumbrance.mediumload', 0)
+		local heavy = DB.getValue(nodeChar, 'encumbrance.heavyload', 0)
+		local total = DB.getValue(nodeChar, CharEncumbranceManager.getEncumbranceField(), 0)
+	
+		local nEncumbranceLevel = 0
+		local nMaxStat, nCheckPenalty
+		if total > (heavy * 2) then -- can't move
+			nEncumbranceLevel = 4
+			nMaxStat = TEGlobals.nOverloadedMaxStat
+			nCheckPenalty = TEGlobals.nHeavyCheckPenalty
+		elseif total > heavy and (total <= (heavy * 2)) then -- over-loaded
+			nEncumbranceLevel = 3
+			nMaxStat = TEGlobals.nOverloadedMaxStat
+			nCheckPenalty = TEGlobals.nHeavyCheckPenalty
+		elseif total > medium then -- heavy encumbrance
+			nEncumbranceLevel = 2
+			nMaxStat = TEGlobals.nHeavyMaxStat
+			nCheckPenalty = TEGlobals.nHeavyCheckPenalty
+		elseif total > light then -- medium encumbrance
+			nEncumbranceLevel = 1
+			nMaxStat = TEGlobals.nMediumMaxStat
+			nCheckPenalty = TEGlobals.nMediumCheckPenalty
+		end
+	
+		DB.setValue(nodeChar, 'encumbrance.encumbrancelevel', 'number', nEncumbranceLevel)
+		return nMaxStat, nCheckPenalty
+	end
+
 	--	Bring in encumbrance penalties
-	local nEncMaxStatBonus, nEncCheckPenalty = encumbrancePenalties(nodeChar)
+	local nEncMaxStatBonus, nEncCheckPenalty = encumbrancePenalties()
 	if nEncMaxStatBonus then
 		nMainMaxStatBonus = math.min(nMainMaxStatBonus, nEncMaxStatBonus)
 		DB.setValue(nodeChar, 'encumbrance.maxstatbonusfromenc', 'number', nEncMaxStatBonus)
@@ -259,6 +259,7 @@ local function calcItemArmorClass_new(nodeChar)
 
 	local nSpeedArmor = 0
 
+	local nEncumbranceLevel = DB.getValue(nodeChar, 'encumbrance.encumbrancelevel', 0)
 	if bApplySpeedPenalty == true then
 		if (nSpeedBase >= 30) and (nMainSpeed30 > 0) then
 			nSpeedArmor = nMainSpeed30 - 30
@@ -266,7 +267,6 @@ local function calcItemArmorClass_new(nodeChar)
 			nSpeedArmor = nMainSpeed20 - 20
 		end
 
-		local nEncumbranceLevel = DB.getValue(nodeChar, 'encumbrance.encumbrancelevel', 0)
 		if nEncumbranceLevel >= 1 then
 			if (nSpeedArmor ~= 0) and (nSpeedPenaltyFromEnc ~= 0) then
 				nSpeedArmor = math.min(nSpeedPenaltyFromEnc, nSpeedArmor)
