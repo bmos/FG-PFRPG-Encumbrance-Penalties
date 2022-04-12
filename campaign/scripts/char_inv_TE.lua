@@ -1,9 +1,7 @@
 --
 --	Please see the LICENSE.md file included with this distribution for attribution and copyright information.
 --
-
 -- luacheck: globals onStrengthChanged
-
 ---	Determine the total bonus to carrying capacity from effects STR or CARRY
 --	@param rActor a table containing relevant paths and information on this PC
 --	@return nStrEffectMod the PC's current strength score after all bonuses are applied

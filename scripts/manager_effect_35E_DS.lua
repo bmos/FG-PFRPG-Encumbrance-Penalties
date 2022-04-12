@@ -89,8 +89,8 @@ function getEffectsByType(rActor, sEffectType, aFilter, rFilterActor, bTargetedO
 						end
 						local j = 1;
 						while aComponents[j] do
-							if StringManager.contains(DataCommon.dmgtypes, aComponents[j]) or
-											StringManager.contains(DataCommon.bonustypes, aComponents[j]) or aComponents[j] == 'all' then
+							if StringManager.contains(DataCommon.dmgtypes, aComponents[j]) or StringManager.contains(DataCommon.bonustypes, aComponents[j]) or
+											aComponents[j] == 'all' then
 								-- Skip
 							elseif StringManager.contains(DataCommon.rangetypes, aComponents[j]) then
 								table.insert(aEffectRangeFilter, aComponents[j]);
@@ -290,9 +290,7 @@ function getEffectsBonus(rActor, aEffectType, bModOnly, aFilter, rFilterActor, b
 	local masterpenalties = {};
 	for k, v in pairs(aEffectType) do
 		-- GET THE MODIFIERS FOR THIS MODIFIER TYPE
-		local effbonusbytype, nEffectSubCount = EffectManager35EDS.getEffectsBonusByType(
-						                                        rActor, v, true, aFilter, rFilterActor, bTargetedOnly
-		                                        );
+		local effbonusbytype, nEffectSubCount = EffectManager35EDS.getEffectsBonusByType(rActor, v, true, aFilter, rFilterActor, bTargetedOnly);
 
 		-- ITERATE THROUGH THE MODIFIERS
 		for k2, v2 in pairs(effbonusbytype) do

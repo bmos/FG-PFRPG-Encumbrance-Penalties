@@ -1,7 +1,6 @@
 --
 -- Please see the LICENSE.md file included with this distribution for attribution and copyright information.
 --
-
 ---	This function checks for special abilities.
 local function hasSpecialAbility(nodeChar, sSpecAbil)
 	if not nodeChar or not sSpecAbil then return false end
@@ -27,8 +26,8 @@ local function getSpeedEffects(nodeChar)
 
 	local function isSpeedNone()
 		return ActorHealthManager.isDyingOrDead(rActor) or EffectManager35EDS.hasEffectCondition(rActor, 'Grappled') or
-							EffectManager35EDS.hasEffectCondition(rActor, 'Paralyzed') or
-							EffectManager35EDS.hasEffectCondition(rActor, 'Petrified') or EffectManager35EDS.hasEffectCondition(rActor, 'Pinned')
+						       EffectManager35EDS.hasEffectCondition(rActor, 'Paralyzed') or EffectManager35EDS.hasEffectCondition(rActor, 'Petrified') or
+						       EffectManager35EDS.hasEffectCondition(rActor, 'Pinned')
 	end
 	local bSpeedZero = isSpeedNone()
 
@@ -276,8 +275,8 @@ local function calcItemArmorClass_new(nodeChar)
 	end
 
 	DB.setValue(nodeChar, 'speed.armor', 'number', nSpeedArmor)
-	local nSpeedTotal = (nSpeedBase + nSpeedArmor + DB.getValue(nodeChar, 'speed.misc', 0) +
-					                    DB.getValue(nodeChar, 'speed.temporary', 0) + nSpeedAdjFromEffects)
+	local nSpeedTotal = (nSpeedBase + nSpeedArmor + DB.getValue(nodeChar, 'speed.misc', 0) + DB.getValue(nodeChar, 'speed.temporary', 0) +
+					                    nSpeedAdjFromEffects)
 	if bSpeedHalved then
 		nSpeedTotal = nSpeedTotal / 2
 	elseif bSpeedZero then
