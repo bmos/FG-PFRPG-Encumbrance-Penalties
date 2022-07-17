@@ -1,7 +1,7 @@
 --
 --	Please see the LICENSE.md file included with this distribution for attribution and copyright information.
 --
--- luacheck: globals onValueChanged
+-- luacheck: globals onValueChanged getName
 function onValueChanged()
 	local sArmorStat = getName():gsub('armor', '')
 	local nMaxStat = DB.getValue(getDatabaseNode().getParent(), 'armor' .. sArmorStat)
