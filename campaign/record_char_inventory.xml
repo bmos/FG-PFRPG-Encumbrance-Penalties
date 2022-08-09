@@ -26,9 +26,12 @@
 				<state icon="button_checkoff" tooltipres="char_tooltip_armormodoff" />
 				<state icon="button_checkon" tooltipres="char_tooltip_armormodon" />
 				<script>
-					function onValueChanged()
+					function encumbranceColors()
 						window.armormaxstatbonus.onValueChanged()
 						window.armorcheckpenalty.onValueChanged()
+					end
+					function onValueChanged()
+						encumbranceColors()
 					end
 				</script>
 			</buttonfield>
