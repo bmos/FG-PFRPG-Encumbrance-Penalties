@@ -1,8 +1,9 @@
 --
 --	Please see the LICENSE.md file included with this distribution for attribution and copyright information.
 --
--- luacheck: globals onValueChanged getName
-function onValueChanged()
+-- luacheck: globals onValueChanged getName encumbranceColors
+
+function encumbranceColors()
 	local sArmorStat = getName():gsub('armor', '')
 	local nMaxStat = DB.getValue(getDatabaseNode().getParent(), 'armor' .. sArmorStat)
 	local nMaxStatFromEnc = DB.getValue(getDatabaseNode().getParent(), sArmorStat .. 'fromenc')
@@ -17,4 +18,12 @@ function onValueChanged()
 	end
 end
 
-function onInit() onValueChanged() end
+function onValueChanged(...)
+	if super and super.onValueChanged then super.onValueChanged(...); end 
+	encumbranceColors()
+end
+
+function onInit()
+	if super and super.onInit then super.onInit() end 
+	onValueChanged()
+end
