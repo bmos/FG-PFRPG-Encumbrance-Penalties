@@ -19,11 +19,11 @@ function encumbranceColors()
 end
 
 function onValueChanged(...)
-	if super and super.onValueChanged then super.onValueChanged(...); end 
+	if super and super.onValueChanged then super.onValueChanged(...); end
 	encumbranceColors()
 end
 
 function onInit()
-	if super and super.onInit then super.onInit() end 
+	if super and super.onInit then super.onInit() end
 	onValueChanged()
 end
