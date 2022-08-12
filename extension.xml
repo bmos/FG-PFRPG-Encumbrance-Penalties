@@ -2,10 +2,10 @@
 
 <!-- Please see the LICENSE.md file included with this distribution for attribution and copyright information. -->
 
-<root version='3.3' release='3'>
+<root version='3.0'>
 	<properties>
 		<name>Feature: Encumbrance Penalties</name>
-		<version>1.7</version>
+		<version>1.8</version>
 		<author>bmos (Wil Thieme)</author>
 		<description>rThis extension applies encumbrance penalties, weighs PC coins, calculates character wealth, automates bypassing weight for bag of holding contents, counts the capacity of some containers, offers metric unit conversion, and recalculates carrying capacity taking into account STR effects and Ant Haul.</description>
 		<ruleset>
@@ -17,7 +17,7 @@
 		<loadorder>2</loadorder>
 	</properties>
 
-	<announcement text="https://www.fantasygrounds.com/forums/showthread.php?68289-PFRPG-3-5E-Encumbrance-Extension\rPFRPG Encumbrance Penalties v1.7-hotfix.1:\rThis extension applies encumbrance penalties and recalculates carrying capacity taking into account STR effects and Ant Haul." icon="EncumberedGuy" font="emotefont" />
+	<announcement text="https://www.fantasygrounds.com/forums/showthread.php?68289-PFRPG-3-5E-Encumbrance-Extension\rPFRPG Encumbrance Penalties v1.8:\rThis extension applies encumbrance penalties and recalculates carrying capacity taking into account STR effects and Ant Haul." icon="EncumberedGuy" font="emotefont" />
 
 	<base>
 		<!-- Icon -->
@@ -36,5 +36,8 @@
 		<script name="CharManagerTE" file="scripts/manager_char_TE.lua" />
 		<script name="TEGlobals" file="scripts/encumbrance_globals.lua" />
 		<script name="EffectManager35EDS" file="scripts/manager_effect_35E_DS.lua" />
+
+		<!-- Effect Builder -->
+		<includefile source="effect_builder/editor_loader.xml" />
 	</base>
 </root>

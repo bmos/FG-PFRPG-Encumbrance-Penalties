@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- 
+  Please see the license.html file included with this distribution for 
+  attribution and copyright information.
+-->
+
+<root version="3.0">
+    <windowclass name="effect_CARRYMULT">
+		<script file="effect_builder/effects/scripts/CARRY.lua" />
+		<margins control="0,0,0,2" />
+        <sheetdata>
+			<leftanchor_eb />
+
+			<subwindow_eb_number_value />
+
+			<combobox_eb_bonus_type name="effect_bonus_type">
+				<anchored>
+					<left offset="5" />
+				</anchored>
+			</combobox_eb_bonus_type>
+        </sheetdata>
+    </windowclass>
+    <script name="CARRYMULT">
+        function onInit()
+            if EditorManager and EditorManager.addEditor then
+                EditorManager.addEditor(
+                    "category_misc",
+                    {
+                        value="CARRYMULT",
+                        labelres="effect_carrymult",
+                        windowclass="effect_CARRYMULT"
+                    }
+                )
+            end
+        end
+    </script>
+</root>
