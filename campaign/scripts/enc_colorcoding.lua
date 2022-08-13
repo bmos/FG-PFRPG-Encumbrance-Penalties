@@ -4,13 +4,12 @@
 -- luacheck: globals onValueChanged getName encumbranceColors getValue setColor
 
 function encumbranceColors()
-	local sArmorStat = getName():gsub('armor', '')
-	local nMaxStat = DB.getValue(getDatabaseNode().getParent(), 'armor' .. sArmorStat)
-	local nMaxStatFromEnc = DB.getValue(getDatabaseNode().getParent(), sArmorStat .. 'fromenc')
 	if window.usearmormaxstatbonus.getValue() == 0 then
 		setColor(ColorManager.COLOR_FULL)
 	else
-		if nMaxStatFromEnc == nMaxStat then
+		local nodeEnc = getDatabaseNode().getParent()
+		local sArmorStat = getName():gsub('armor', '')
+		if DB.getValue(nodeEnc, sArmorStat .. 'fromenc') == DB.getValue(nodeEnc, 'armor' .. sArmorStat) then
 			setColor(ColorManager.COLOR_HEALTH_CRIT_WOUNDS)
 		else
 			setColor(ColorManager.COLOR_FULL)
