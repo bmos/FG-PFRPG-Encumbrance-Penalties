@@ -65,28 +65,27 @@ local function calcItemArmorClass_new(nodeChar)
 	local bArmorLM = false
 	local bArmorH = false
 
-	for _, vNode in pairs(DB.getChildren(nodeChar, 'inventorylist')) do
-		if DB.getValue(vNode, 'carried', 0) == 2 then
-			local bIsArmor, _, sSubtypeLower = ItemManager2.isArmor(vNode)
-			if bIsArmor then
+	for _,vNode in pairs(DB.getChildren(nodeChar, "inventorylist")) do
+		if DB.getValue(vNode, "carried", 0) == 2 then
+			if ItemManager.isArmor(vNode) then
 				local nFighterLevel = DB.getValue(CharManager.getClassNode(nodeChar, 'Fighter'), 'level', 0)
 				local bArmorTraining = (hasSpecialAbility(nodeChar, 'Armor Training') and nFighterLevel >= 3)
 				local bArmorTrainingH = (bArmorTraining and nFighterLevel >= 7)
 				local bAdvArmorTraining = (hasSpecialAbility(nodeChar, 'Advanced Armor Training'))
 
-				local bID = LibraryData.getIDState('item', vNode, true)
-				local bIsShield = (sSubtypeLower == 'shield')
-				if bIsShield then
+				local bID = LibraryData.getIDState("item", vNode, true);
+
+				if ItemManager.isShield(vNode) then
 					if bID then
-						nMainShieldTotal = nMainShieldTotal + DB.getValue(vNode, 'ac', 0) + DB.getValue(vNode, 'bonus', 0)
+						nMainShieldTotal = nMainShieldTotal + DB.getValue(vNode, "ac", 0) + DB.getValue(vNode, "bonus", 0);
 					else
-						nMainShieldTotal = nMainShieldTotal + DB.getValue(vNode, 'ac', 0)
+						nMainShieldTotal = nMainShieldTotal + DB.getValue(vNode, "ac", 0);
 					end
 				else
 					if bID then
-						nMainArmorTotal = nMainArmorTotal + DB.getValue(vNode, 'ac', 0) + DB.getValue(vNode, 'bonus', 0)
+						nMainArmorTotal = nMainArmorTotal + DB.getValue(vNode, "ac", 0) + DB.getValue(vNode, "bonus", 0);
 					else
-						nMainArmorTotal = nMainArmorTotal + DB.getValue(vNode, 'ac', 0)
+						nMainArmorTotal = nMainArmorTotal + DB.getValue(vNode, "ac", 0);
 					end
 
 					if sSubtypeLower == 'heavy' then bArmorH = true end
