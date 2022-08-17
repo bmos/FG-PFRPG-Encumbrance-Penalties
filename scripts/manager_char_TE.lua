@@ -76,7 +76,8 @@ local function calcItemArmorClass_new(nodeChar)
 
 				local bID = LibraryData.getIDState("item", vNode, true);
 
-				if ItemManager.isShield(vNode) then
+				local bIsShield = ItemManager.isShield(vNode);
+				if bIsShield then
 					if bID then
 						nMainShieldTotal = nMainShieldTotal + DB.getValue(vNode, "ac", 0) + DB.getValue(vNode, "bonus", 0);
 					else
@@ -89,11 +90,11 @@ local function calcItemArmorClass_new(nodeChar)
 						nMainArmorTotal = nMainArmorTotal + DB.getValue(vNode, "ac", 0);
 					end
 
-					local sSubtypeLower = DB.getValue(vNode, 'subtype', ''):lower();
+					local sSubtypeLower = StringManager.trim(DB.getValue(vNode, "subtype", "")):lower();
 
 					if sSubtypeLower:match('heavy') then
 						bArmorH = true;
-					else
+					elseif sSubtypeLower:match('light') or sSubtypeLower:match('medium') then
 						bArmorLM = true;
 					end
 
@@ -119,7 +120,6 @@ local function calcItemArmorClass_new(nodeChar)
 					end
 				end
 
-				local bIsShield = ItemManager.isShield(vNode);
 				local nMaxStatBonus = DB.getValue(vNode, 'maxstatbonus', 0)
 				if nMaxStatBonus > 0 then
 					if not bIsShield and bArmorTraining then
