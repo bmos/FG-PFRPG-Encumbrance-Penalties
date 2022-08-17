@@ -54,6 +54,7 @@ local function getSpeedEffects(nodeChar)
 	return nSpeedAdj, bSpeedHalved, bSpeedZero
 end
 
+--luacheck: globals ItemManager.isArmor ItemManager.isShield
 local function calcItemArmorClass_new(nodeChar)
 	local nMainArmorTotal = 0
 	local nMainShieldTotal = 0
@@ -88,31 +89,37 @@ local function calcItemArmorClass_new(nodeChar)
 						nMainArmorTotal = nMainArmorTotal + DB.getValue(vNode, "ac", 0);
 					end
 
-					if sSubtypeLower == 'heavy' then bArmorH = true end
-					if sSubtypeLower == 'light' or sSubtypeLower == 'medium' then bArmorLM = true end
+					local sSubtypeLower = DB.getValue(vNode, 'subtype', ''):lower();
 
-					local nItemSpeed30 = DB.getValue(vNode, 'speed30', 0)
+					if sSubtypeLower:match('heavy') then
+						bArmorH = true;
+					else
+						bArmorLM = true;
+					end
+
+					local nItemSpeed30 = DB.getValue(vNode, 'speed30', 0);
 					if (nItemSpeed30 > 0) and (nItemSpeed30 < 30) then
-						if bArmorLM and bArmorTraining then nItemSpeed30 = 30 end
-						if bArmorH and bArmorTrainingH then nItemSpeed30 = 30 end
+						if bArmorLM and bArmorTraining then nItemSpeed30 = 30; end
+						if bArmorH and bArmorTrainingH then nItemSpeed30 = 30; end
 						if nMainSpeed30 > 0 then
-							nMainSpeed30 = math.min(nMainSpeed30, nItemSpeed30)
+							nMainSpeed30 = math.min(nMainSpeed30, nItemSpeed30);
 						else
-							nMainSpeed30 = nItemSpeed30
+							nMainSpeed30 = nItemSpeed30;
 						end
 					end
-					local nItemSpeed20 = DB.getValue(vNode, 'speed20', 0)
+					local nItemSpeed20 = DB.getValue(vNode, 'speed20', 0);
 					if (nItemSpeed20 > 0) and (nItemSpeed20 < 30) then
-						if bArmorLM and bArmorTraining then nItemSpeed20 = 20 end
-						if bArmorH and bArmorTrainingH then nItemSpeed20 = 20 end
+						if bArmorLM and bArmorTraining then nItemSpeed20 = 20; end
+						if bArmorH and bArmorTrainingH then nItemSpeed20 = 20; end
 						if nMainSpeed20 > 0 then
-							nMainSpeed20 = math.min(nMainSpeed20, nItemSpeed20)
+							nMainSpeed20 = math.min(nMainSpeed20, nItemSpeed20);
 						else
-							nMainSpeed20 = nItemSpeed20
+							nMainSpeed20 = nItemSpeed20;
 						end
 					end
 				end
 
+				local bIsShield = ItemManager.isShield(vNode);
 				local nMaxStatBonus = DB.getValue(vNode, 'maxstatbonus', 0)
 				if nMaxStatBonus > 0 then
 					if not bIsShield and bArmorTraining then
