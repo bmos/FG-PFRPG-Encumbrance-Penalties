@@ -7,7 +7,7 @@ local function hasSpecialAbility(nodeChar, sSpecAbil)
 
 	local sLowerSpecAbil = string.lower(sSpecAbil)
 	for _, vNode in pairs(DB.getChildren(nodeChar, 'specialabilitylist')) do
-		local vLowerSpecAbilName = StringManager.trim(DB.getValue(vNode, 'name', ''):lower());
+		local vLowerSpecAbilName = StringManager.trim(DB.getValue(vNode, 'name', ''):lower())
 		if vLowerSpecAbilName and string.find(vLowerSpecAbilName, sLowerSpecAbil, 0) then return true end
 	end
 end
@@ -19,20 +19,29 @@ local function getSpeedEffects(nodeChar)
 	local rActor = ActorManager.resolveActor(nodeChar)
 	if not rActor then return 0, false, false end
 
-	local function isSpeedHalved()
-		return EffectManager35EDS.hasEffectCondition(rActor, 'Exhausted') or EffectManager35EDS.hasEffectCondition(rActor, 'Entangled')
-	end
-	local bSpeedHalved = isSpeedHalved()
+	local function getSpeedMult()
+		local nMult = 1
+		if
+			ActorHealthManager.isDyingOrDead(rActor)
+			or EffectManager35EDS.hasEffectCondition(rActor, 'Grappled')
+			or EffectManager35EDS.hasEffectCondition(rActor, 'Paralyzed')
+			or EffectManager35EDS.hasEffectCondition(rActor, 'Petrified')
+			or EffectManager35EDS.hasEffectCondition(rActor, 'Pinned')
+		then
+			nMult = 0
+		elseif
+			EffectManager35EDS.hasEffectCondition(rActor, 'Exhausted')
+			or EffectManager35EDS.hasEffectCondition(rActor, 'Entangled')
+			--	Check if the character is disabled (at zero remaining hp)
+			or (DB.getValue(nodeChar, 'hp.total', 0) == DB.getValue(nodeChar, 'hp.wounds', 0))
+		then
+			nMult = nMult * 0.5
+		end
+		nMult = nMult * EffectManager35EDS.getEffectsBonus(rActor, 'SPEEDMULT', true)
 
-	local function isSpeedNone()
-		return ActorHealthManager.isDyingOrDead(rActor) or EffectManager35EDS.hasEffectCondition(rActor, 'Grappled') or
-						       EffectManager35EDS.hasEffectCondition(rActor, 'Paralyzed') or EffectManager35EDS.hasEffectCondition(rActor, 'Petrified') or
-						       EffectManager35EDS.hasEffectCondition(rActor, 'Pinned')
+		return nMult
 	end
-	local bSpeedZero = isSpeedNone()
-
-	--	Check if the character is disabled (at zero remaining hp)
-	if DB.getValue(nodeChar, 'hp.total', 0) == DB.getValue(nodeChar, 'hp.wounds', 0) then bSpeedHalved = true end
+	local nSpeedMult = getSpeedMult()
 
 	--	Check if the character has fast movement ability
 	local nSpeedAdj = 0
@@ -51,7 +60,7 @@ local function getSpeedEffects(nodeChar)
 
 	nSpeedAdj = nSpeedAdj + EffectManager35EDS.getEffectsBonus(rActor, 'SPEED', true)
 
-	return nSpeedAdj, bSpeedHalved, bSpeedZero
+	return nSpeedAdj, nSpeedMult
 end
 
 --luacheck: globals ItemManager.isArmor ItemManager.isShield
@@ -66,56 +75,56 @@ local function calcItemArmorClass_new(nodeChar)
 	local bArmorLM = false
 	local bArmorH = false
 
-	for _,vNode in pairs(DB.getChildren(nodeChar, "inventorylist")) do
-		if DB.getValue(vNode, "carried", 0) == 2 then
+	for _, vNode in pairs(DB.getChildren(nodeChar, 'inventorylist')) do
+		if DB.getValue(vNode, 'carried', 0) == 2 then
 			if ItemManager.isArmor(vNode) then
 				local nFighterLevel = DB.getValue(CharManager.getClassNode(nodeChar, 'Fighter'), 'level', 0)
 				local bArmorTraining = (hasSpecialAbility(nodeChar, 'Armor Training') and nFighterLevel >= 3)
 				local bArmorTrainingH = (bArmorTraining and nFighterLevel >= 7)
 				local bAdvArmorTraining = (hasSpecialAbility(nodeChar, 'Advanced Armor Training'))
 
-				local bID = LibraryData.getIDState("item", vNode, true);
+				local bID = LibraryData.getIDState('item', vNode, true)
 
-				local bIsShield = ItemManager.isShield(vNode);
+				local bIsShield = ItemManager.isShield(vNode)
 				if bIsShield then
 					if bID then
-						nMainShieldTotal = nMainShieldTotal + DB.getValue(vNode, "ac", 0) + DB.getValue(vNode, "bonus", 0);
+						nMainShieldTotal = nMainShieldTotal + DB.getValue(vNode, 'ac', 0) + DB.getValue(vNode, 'bonus', 0)
 					else
-						nMainShieldTotal = nMainShieldTotal + DB.getValue(vNode, "ac", 0);
+						nMainShieldTotal = nMainShieldTotal + DB.getValue(vNode, 'ac', 0)
 					end
 				else
 					if bID then
-						nMainArmorTotal = nMainArmorTotal + DB.getValue(vNode, "ac", 0) + DB.getValue(vNode, "bonus", 0);
+						nMainArmorTotal = nMainArmorTotal + DB.getValue(vNode, 'ac', 0) + DB.getValue(vNode, 'bonus', 0)
 					else
-						nMainArmorTotal = nMainArmorTotal + DB.getValue(vNode, "ac", 0);
+						nMainArmorTotal = nMainArmorTotal + DB.getValue(vNode, 'ac', 0)
 					end
 
-					local sSubtypeLower = StringManager.trim(DB.getValue(vNode, "subtype", "")):lower();
+					local sSubtypeLower = StringManager.trim(DB.getValue(vNode, 'subtype', '')):lower()
 
 					if sSubtypeLower:match('heavy') then
-						bArmorH = true;
+						bArmorH = true
 					elseif sSubtypeLower:match('light') or sSubtypeLower:match('medium') then
-						bArmorLM = true;
+						bArmorLM = true
 					end
 
-					local nItemSpeed30 = DB.getValue(vNode, 'speed30', 0);
+					local nItemSpeed30 = DB.getValue(vNode, 'speed30', 0)
 					if (nItemSpeed30 > 0) and (nItemSpeed30 < 30) then
-						if bArmorLM and bArmorTraining then nItemSpeed30 = 30; end
-						if bArmorH and bArmorTrainingH then nItemSpeed30 = 30; end
+						if bArmorLM and bArmorTraining then nItemSpeed30 = 30 end
+						if bArmorH and bArmorTrainingH then nItemSpeed30 = 30 end
 						if nMainSpeed30 > 0 then
-							nMainSpeed30 = math.min(nMainSpeed30, nItemSpeed30);
+							nMainSpeed30 = math.min(nMainSpeed30, nItemSpeed30)
 						else
-							nMainSpeed30 = nItemSpeed30;
+							nMainSpeed30 = nItemSpeed30
 						end
 					end
-					local nItemSpeed20 = DB.getValue(vNode, 'speed20', 0);
+					local nItemSpeed20 = DB.getValue(vNode, 'speed20', 0)
 					if (nItemSpeed20 > 0) and (nItemSpeed20 < 30) then
-						if bArmorLM and bArmorTraining then nItemSpeed20 = 20; end
-						if bArmorH and bArmorTrainingH then nItemSpeed20 = 20; end
+						if bArmorLM and bArmorTraining then nItemSpeed20 = 20 end
+						if bArmorH and bArmorTrainingH then nItemSpeed20 = 20 end
 						if nMainSpeed20 > 0 then
-							nMainSpeed20 = math.min(nMainSpeed20, nItemSpeed20);
+							nMainSpeed20 = math.min(nMainSpeed20, nItemSpeed20)
 						else
-							nMainSpeed20 = nItemSpeed20;
+							nMainSpeed20 = nItemSpeed20
 						end
 					end
 				end
@@ -246,51 +255,44 @@ local function calcItemArmorClass_new(nodeChar)
 	DB.setValue(nodeChar, 'encumbrance.spellfailure', 'number', nMainSpellFailure)
 
 	local bApplySpeedPenalty = true
-	if CharManager.hasTrait(nodeChar, 'Slow and Steady') then bApplySpeedPenalty = nil end
+	if CharManager.hasTrait(nodeChar, 'Slow and Steady') then bApplySpeedPenalty = false end
 
-	local nSpeedAdjFromEffects, bSpeedHalved, bSpeedZero = getSpeedEffects(nodeChar)
+	local nSpeedAdjFromEffects, nSpeedMult = getSpeedEffects(nodeChar)
 
 	local nSpeedBase = DB.getValue(nodeChar, 'speed.base', 0)
 
 	-- compute speed including total encumberance speed penalty
-	local nSpeedTableIndex = nSpeedBase / 5
-
-	nSpeedTableIndex = nSpeedTableIndex + 0.5 - (nSpeedTableIndex + 0.5) % 1
-
-	local nSpeedPenaltyFromEnc = 0
-
-	if TEGlobals.tEncumbranceSpeed[nSpeedTableIndex] then nSpeedPenaltyFromEnc = TEGlobals.tEncumbranceSpeed[nSpeedTableIndex] - nSpeedBase end
 
 	local nSpeedArmor = 0
 
 	local nEncumbranceLevel = DB.getValue(nodeChar, 'encumbrance.encumbrancelevel', 0)
-	if bApplySpeedPenalty == true then
+	if bApplySpeedPenalty then
 		if (nSpeedBase >= 30) and (nMainSpeed30 > 0) then
 			nSpeedArmor = nMainSpeed30 - 30
 		elseif (nSpeedBase < 30) and (nMainSpeed20 > 0) then
 			nSpeedArmor = nMainSpeed20 - 20
 		end
 
+		local nSpeedPenaltyFromEnc = 0
+
+		local nSpeedTableIndex = nSpeedBase / 5
+		nSpeedTableIndex = nSpeedTableIndex + 0.5 - (nSpeedTableIndex + 0.5) % 1
+		if TEGlobals.tEncumbranceSpeed[nSpeedTableIndex] then nSpeedPenaltyFromEnc = TEGlobals.tEncumbranceSpeed[nSpeedTableIndex] - nSpeedBase end
+
 		if nEncumbranceLevel >= 1 then
 			if (nSpeedArmor ~= 0) and (nSpeedPenaltyFromEnc ~= 0) then
 				nSpeedArmor = math.min(nSpeedPenaltyFromEnc, nSpeedArmor)
-			elseif nSpeedPenaltyFromEnc then
+			elseif nSpeedPenaltyFromEnc ~= 0 then
 				nSpeedArmor = nSpeedPenaltyFromEnc
 			end
 		end
 	end
-
 	DB.setValue(nodeChar, 'speed.armor', 'number', nSpeedArmor)
-	local nSpeedTotal = (nSpeedBase + nSpeedArmor + DB.getValue(nodeChar, 'speed.misc', 0) + DB.getValue(nodeChar, 'speed.temporary', 0) +
-					                    nSpeedAdjFromEffects)
-	if bSpeedHalved then
-		nSpeedTotal = nSpeedTotal / 2
-	elseif bSpeedZero then
-		nSpeedTotal = 0
-	end
+
+	local nSpeedTotal = (nSpeedBase + nSpeedArmor + DB.getValue(nodeChar, 'speed.misc', 0) + nSpeedAdjFromEffects) * nSpeedMult
 	-- speed limits for overloaded characters
-	if (nEncumbranceLevel == 4) then
-		nSpeedTotal = 0;
+	if nEncumbranceLevel == 4 then
+		nSpeedTotal = 0
 	elseif (nEncumbranceLevel == 3) and (nSpeedTotal > 5) then
 		nSpeedTotal = 5
 	end
@@ -330,7 +332,7 @@ function onInit()
 		DB.addHandler(DB.getPath(CombatManager.CT_COMBATANT_PATH .. '.effects'), 'onChildDeleted', onEffectRemoved)
 	end
 
-	updateEncumbrance_old = CharEncumbranceManager.updateEncumbrance;
-	CharEncumbranceManager.updateEncumbrance = updateEncumbrance_new;
-	CharManager.calcItemArmorClass = calcItemArmorClass_new;
+	updateEncumbrance_old = CharEncumbranceManager.updateEncumbrance
+	CharEncumbranceManager.updateEncumbrance = updateEncumbrance_new
+	CharManager.calcItemArmorClass = calcItemArmorClass_new
 end

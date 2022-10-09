@@ -61,17 +61,17 @@ local function onEncumbranceLimitChanged(nodeChar)
 	local nLiftOff = nHeavy * 2
 	local nPushDrag = nHeavy * 5
 
-	local nSize = ActorCommonManager.getCreatureSizeDnD3(ActorManager.resolveActor(nodeChar));
-	if (nSize < 0) then
+	local nSize = ActorCommonManager.getCreatureSizeDnD3(ActorManager.resolveActor(nodeChar))
+	if nSize < 0 then
 		local nMult = 0
-		if (nSize == -1) then
+		if nSize == -1 then
 			nMult = 0.75
-		elseif (nSize == -2) then
+		elseif nSize == -2 then
 			nMult = 0.5
-		elseif (nSize == -3) then
-			nMult = .25
-		elseif (nSize == -4) then
-			nMult = .125
+		elseif nSize == -3 then
+			nMult = 0.25
+		elseif nSize == -4 then
+			nMult = 0.125
 		end
 
 		nLight = math.floor(((nLight * nMult) * 100) + 0.5) / 100
@@ -80,7 +80,7 @@ local function onEncumbranceLimitChanged(nodeChar)
 		nLiftOver = math.floor(((nLiftOver * nMult) * 100) + 0.5) / 100
 		nLiftOff = math.floor(((nLiftOff * nMult) * 100) + 0.5) / 100
 		nPushDrag = math.floor(((nPushDrag * nMult) * 100) + 0.5) / 100
-	elseif (nSize > 0) then
+	elseif nSize > 0 then
 		local nMult = math.pow(2, nSize)
 
 		nLight = nLight * nMult

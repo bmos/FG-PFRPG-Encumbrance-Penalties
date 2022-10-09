@@ -18,7 +18,7 @@ function encumbranceColors()
 end
 
 function onValueChanged(...)
-	if super and super.onValueChanged then super.onValueChanged(...); end
+	if super and super.onValueChanged then super.onValueChanged(...) end
 	encumbranceColors()
 end
 
