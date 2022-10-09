@@ -12,55 +12,58 @@ local function hasSpecialAbility(nodeChar, sSpecAbil)
 	end
 end
 
+local function getSpeedMult(nodeChar)
+	local rActor = ActorManager.resolveActor(nodeChar)
+	local nMult = 1
+	if
+		ActorHealthManager.isDyingOrDead(rActor)
+		or EffectManager35EDS.hasEffectCondition(rActor, 'Grappled')
+		or EffectManager35EDS.hasEffectCondition(rActor, 'Paralyzed')
+		or EffectManager35EDS.hasEffectCondition(rActor, 'Petrified')
+		or EffectManager35EDS.hasEffectCondition(rActor, 'Pinned')
+	then
+		nMult = 0
+	elseif
+		EffectManager35EDS.hasEffectCondition(rActor, 'Exhausted')
+		or EffectManager35EDS.hasEffectCondition(rActor, 'Entangled')
+		--	Check if the character is disabled (at zero remaining hp)
+		or (DB.getValue(nodeChar, 'hp.total', 0) == DB.getValue(nodeChar, 'hp.wounds', 0))
+	then
+		nMult = nMult * 0.5
+	end
+	nMult = nMult * EffectManager35EDS.getEffectsBonus(rActor, 'SPEEDMULT', true)
+
+	return nMult
+end
+
 --	Summary: Determine the total bonus to character's speed from effects
 --	Argument: rActor containing the PC's charsheet and combattracker nodes
 --	Return: total bonus to speed from effects formatted as "SPEED: n" in the combat tracker
 local function getSpeedEffects(nodeChar)
 	local rActor = ActorManager.resolveActor(nodeChar)
-	if not rActor then return 0, false, false end
-
-	local function getSpeedMult()
-		local nMult = 1
-		if
-			ActorHealthManager.isDyingOrDead(rActor)
-			or EffectManager35EDS.hasEffectCondition(rActor, 'Grappled')
-			or EffectManager35EDS.hasEffectCondition(rActor, 'Paralyzed')
-			or EffectManager35EDS.hasEffectCondition(rActor, 'Petrified')
-			or EffectManager35EDS.hasEffectCondition(rActor, 'Pinned')
-		then
-			nMult = 0
-		elseif
-			EffectManager35EDS.hasEffectCondition(rActor, 'Exhausted')
-			or EffectManager35EDS.hasEffectCondition(rActor, 'Entangled')
-			--	Check if the character is disabled (at zero remaining hp)
-			or (DB.getValue(nodeChar, 'hp.total', 0) == DB.getValue(nodeChar, 'hp.wounds', 0))
-		then
-			nMult = nMult * 0.5
-		end
-		nMult = nMult * EffectManager35EDS.getEffectsBonus(rActor, 'SPEEDMULT', true)
-
-		return nMult
-	end
-	local nSpeedMult = getSpeedMult()
+	if not rActor then return 0 end
 
 	--	Check if the character has fast movement ability
-	local nSpeedAdj = 0
-	if hasSpecialAbility(nodeChar, 'Fast Movement') then
-		local bEncumberedH = (DB.getValue(nodeChar, 'encumbrance.encumbrancelevel', 0) >= 2)
-		local bArmorH = (DB.getValue(nodeChar, 'encumbrance.armortype', 0) == 2)
-		if not bEncumberedH and not bArmorH then
-			nSpeedAdj = nSpeedAdj + 10
-			DB.setValue(nodeChar, 'speed.fastmovement', 'number', 10)
+	local function fastMovement()
+		local nReturn = 0
+
+		if hasSpecialAbility(nodeChar, 'Fast Movement') then
+			local bEncumberedH = (DB.getValue(nodeChar, 'encumbrance.encumbrancelevel', 0) >= 2)
+			local bArmorH = (DB.getValue(nodeChar, 'encumbrance.armortype', 0) == 2)
+			if not bEncumberedH and not bArmorH then
+				nReturn = 10
+				DB.setValue(nodeChar, 'speed.fastmovement', 'number', 10)
+			else
+				DB.setValue(nodeChar, 'speed.fastmovement', 'number', 0)
+			end
 		else
 			DB.setValue(nodeChar, 'speed.fastmovement', 'number', 0)
 		end
-	else
-		DB.setValue(nodeChar, 'speed.fastmovement', 'number', 0)
+
+		return nReturn
 	end
 
-	nSpeedAdj = nSpeedAdj + EffectManager35EDS.getEffectsBonus(rActor, 'SPEED', true)
-
-	return nSpeedAdj, nSpeedMult
+	return fastMovement() + EffectManager35EDS.getEffectsBonus(rActor, 'SPEED', true)
 end
 
 --luacheck: globals ItemManager.isArmor ItemManager.isShield
@@ -257,7 +260,7 @@ local function calcItemArmorClass_new(nodeChar)
 	local bApplySpeedPenalty = true
 	if CharManager.hasTrait(nodeChar, 'Slow and Steady') then bApplySpeedPenalty = false end
 
-	local nSpeedAdjFromEffects, nSpeedMult = getSpeedEffects(nodeChar)
+	local nSpeedAdjFromEffects = getSpeedEffects(nodeChar)
 
 	local nSpeedBase = DB.getValue(nodeChar, 'speed.base', 0)
 
@@ -273,13 +276,13 @@ local function calcItemArmorClass_new(nodeChar)
 			nSpeedArmor = nMainSpeed20 - 20
 		end
 
-		local nSpeedPenaltyFromEnc = 0
-
-		local nSpeedTableIndex = nSpeedBase / 5
-		nSpeedTableIndex = nSpeedTableIndex + 0.5 - (nSpeedTableIndex + 0.5) % 1
-		if TEGlobals.tEncumbranceSpeed[nSpeedTableIndex] then nSpeedPenaltyFromEnc = TEGlobals.tEncumbranceSpeed[nSpeedTableIndex] - nSpeedBase end
-
 		if nEncumbranceLevel >= 1 then
+			local nSpeedPenaltyFromEnc = 0
+	
+			local nSpeedTableIndex = nSpeedBase / 5
+			nSpeedTableIndex = nSpeedTableIndex + 0.5 - (nSpeedTableIndex + 0.5) % 1
+			if TEGlobals.tEncumbranceSpeed[nSpeedTableIndex] then nSpeedPenaltyFromEnc = TEGlobals.tEncumbranceSpeed[nSpeedTableIndex] - nSpeedBase end
+
 			if (nSpeedArmor ~= 0) and (nSpeedPenaltyFromEnc ~= 0) then
 				nSpeedArmor = math.min(nSpeedPenaltyFromEnc, nSpeedArmor)
 			elseif nSpeedPenaltyFromEnc ~= 0 then
@@ -289,7 +292,13 @@ local function calcItemArmorClass_new(nodeChar)
 	end
 	DB.setValue(nodeChar, 'speed.armor', 'number', nSpeedArmor)
 
-	local nSpeedTotal = (nSpeedBase + nSpeedArmor + DB.getValue(nodeChar, 'speed.misc', 0) + nSpeedAdjFromEffects) * nSpeedMult
+	local nSpeedTotal = (
+		nSpeedBase
+		+ nSpeedArmor
+		+ DB.getValue(nodeChar, 'speed.misc', 0)
+		+ DB.getValue(nodeChar, 'speed.temporary', 0)
+		+ nSpeedAdjFromEffects
+	) * getSpeedMult(nodeChar)
 	-- speed limits for overloaded characters
 	if nEncumbranceLevel == 4 then
 		nSpeedTotal = 0
@@ -326,6 +335,7 @@ function onInit()
 		DB.addHandler(DB.getPath('charsheet.*.hp'), 'onChildUpdate', onHealthChanged)
 		DB.addHandler(DB.getPath('charsheet.*.wounds'), 'onChildUpdate', onHealthChanged)
 		DB.addHandler(DB.getPath('charsheet.*.speed.base'), 'onUpdate', onSpeedChanged)
+		DB.addHandler(DB.getPath('charsheet.*.speed.temporary'), 'onUpdate', onSpeedChanged)
 
 		DB.addHandler(DB.getPath(CombatManager.CT_COMBATANT_PATH .. '.effects.*.label'), 'onUpdate', onEffectChanged)
 		DB.addHandler(DB.getPath(CombatManager.CT_COMBATANT_PATH .. '.effects.*.isactive'), 'onUpdate', onEffectChanged)

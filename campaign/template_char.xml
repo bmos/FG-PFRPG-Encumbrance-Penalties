@@ -8,6 +8,7 @@
 <root>
 	<template name="number_charspeed" merge="join">
 		<number_chartotal>
+			<modifierfield>speed.temporary</modifierfield>
 			<modifiersize>mini</modifiersize>
 			<description textres="char_tooltip_speed" />
 			<source><name>speed.base</name><op>+</op></source>
