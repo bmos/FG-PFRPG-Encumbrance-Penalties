@@ -8,4 +8,5 @@
 <root version="3.0">
     <string name="effect_carrycapacity">Carrying Capacity Strength Bonus</string>
     <string name="effect_carrymult">Carrying Capacity Multiplier</string>
+    <string name="effect_speedmult">Speed Multiplier</string>
 </root>

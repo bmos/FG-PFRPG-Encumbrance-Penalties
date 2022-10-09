@@ -11,4 +11,5 @@
     <!-- Effect Editors -->
     <includefile source="effect_builder/effects/CARRY.xml" />
     <includefile source="effect_builder/effects/CARRYMULT.xml" />
+    <includefile source="effect_builder/effects/SPEEDMULT.xml" />
 </root>
