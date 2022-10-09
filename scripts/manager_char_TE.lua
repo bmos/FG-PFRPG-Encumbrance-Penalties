@@ -299,7 +299,6 @@ local function calcItemArmorClass_new(nodeChar)
 	end
 	DB.setValue(nodeChar, 'speed.armor', 'number', nSpeedArmor)
 
-	Debug.chat(nSpeedBase, nSpeedArmor, DB.getValue(nodeChar, 'speed.misc', 0), DB.getValue(nodeChar, 'speed.temporary', 0), getSpeedEffects(nodeChar), getSpeedMult(nodeChar))
 	local nSpeedTotal = (
 		nSpeedBase
 		+ nSpeedArmor
