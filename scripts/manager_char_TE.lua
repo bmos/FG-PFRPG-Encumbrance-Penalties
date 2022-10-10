@@ -15,7 +15,7 @@ end
 local function getSpeedMult(nodeChar)
 	local nMult = 1
 	local rActor = ActorManager.resolveActor(nodeChar)
-	if not rActor then return nMult; end
+	if not rActor then return nMult end
 	if
 		ActorHealthManager.isDyingOrDead(rActor)
 		or EffectManager35EDS.hasEffectCondition(rActor, 'Grappled')
@@ -117,13 +117,13 @@ end
 
 --luacheck: globals ItemManager.isArmor ItemManager.isShield
 local function calcItemArmorClass_new(nodeChar)
-	local nMainArmorTotal = 0;
-	local nMainShieldTotal = 0;
-	local nMainMaxStatBonus = 999;
-	local nMainCheckPenalty = 0;
-	local nMainSpellFailure = 0;
-	local nMainSpeed30 = 0;
-	local nMainSpeed20 = 0;
+	local nMainArmorTotal = 0
+	local nMainShieldTotal = 0
+	local nMainMaxStatBonus = 999
+	local nMainCheckPenalty = 0
+	local nMainSpellFailure = 0
+	local nMainSpeed30 = 0
+	local nMainSpeed20 = 0
 
 	-- bmos adding armor types
 	local bArmorLM = false
@@ -288,7 +288,9 @@ local function calcItemArmorClass_new(nodeChar)
 			local nSpeedTableIndex = nSpeedBase / 5
 			nSpeedTableIndex = nSpeedTableIndex + 0.5 - (nSpeedTableIndex + 0.5) % 1
 
-			if TEGlobals.tEncumbranceSpeed[nSpeedTableIndex] then nSpeedPenaltyFromEnc = TEGlobals.tEncumbranceSpeed[nSpeedTableIndex] - nSpeedBase end
+			if TEGlobals.tEncumbranceSpeed[nSpeedTableIndex] then
+				nSpeedPenaltyFromEnc = TEGlobals.tEncumbranceSpeed[nSpeedTableIndex] - nSpeedBase
+			end
 
 			if (nSpeedArmor ~= 0) and (nSpeedPenaltyFromEnc ~= 0) then
 				nSpeedArmor = math.min(nSpeedPenaltyFromEnc, nSpeedArmor)
