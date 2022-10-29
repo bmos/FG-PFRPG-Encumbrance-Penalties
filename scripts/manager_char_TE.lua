@@ -317,6 +317,7 @@ local function calcItemArmorClass_new(nodeChar)
 	end
 
 	DB.setValue(nodeChar, 'speed.total', 'number', nSpeedTotal)
+	DB.setValue(nodeChar, 'speed.final', 'number', nSpeedTotal)
 end
 
 local updateEncumbrance_old
