@@ -2,12 +2,13 @@
 -- Please see the LICENSE.md file included with this distribution for attribution and copyright information.
 --
 -- luacheck: ignore
--- stylua: ignore
 -- bmos' list of changes to simplify maintenance:
 -- Removed onInit, parseEffectComp, rebuildParsedEffectComp, applyOngoingDamageAdjustment, checkConditional, and checkConditionalHelper functions
 -- Removed all in EFFECT MANAGER OVERRIDES section
 -- Commented out code labeled "Remove one shot effects"
 -- Commented out code labeled "If matched, then remove one-off effects"
+
+-- stylua: ignore
 function getEffectsByType(rActor, sEffectType, aFilter, rFilterActor, bTargetedOnly)
 	if not rActor then return {} end
 	local results = {}
@@ -180,6 +181,7 @@ function getEffectsByType(rActor, sEffectType, aFilter, rFilterActor, bTargetedO
 	return results
 end
 
+-- stylua: ignore
 function getEffectsBonusByType(rActor, aEffectType, bAddEmptyBonus, aFilter, rFilterActor, bTargetedOnly)
 	if not rActor or not aEffectType then return {}, 0 end
 
@@ -277,6 +279,7 @@ function getEffectsBonusByType(rActor, aEffectType, bAddEmptyBonus, aFilter, rFi
 	return results, nEffectCount
 end
 
+-- stylua: ignore
 function getEffectsBonus(rActor, aEffectType, bModOnly, aFilter, rFilterActor, bTargetedOnly)
 	if not rActor or not aEffectType then
 		if bModOnly then return 0, 0 end
@@ -335,6 +338,7 @@ function getEffectsBonus(rActor, aEffectType, bModOnly, aFilter, rFilterActor, b
 	return aTotalDice, nTotalMod, nEffectCount
 end
 
+-- stylua: ignore
 function hasEffect(rActor, sEffect, rTarget, bTargetedOnly, bIgnoreEffectTargets)
 	if not sEffect or not rActor then return false end
 	local sLowerEffect = sEffect:lower()
@@ -394,4 +398,5 @@ function hasEffect(rActor, sEffect, rTarget, bTargetedOnly, bIgnoreEffectTargets
 	return false
 end
 
+-- stylua: ignore
 function hasEffectCondition(rActor, sEffect) return EffectManager35EDS.hasEffect(rActor, sEffect, nil, false, true) end
