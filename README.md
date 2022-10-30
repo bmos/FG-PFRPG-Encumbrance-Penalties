@@ -11,4 +11,4 @@ This extension enhances functionality related to carrying capacity and weight/ar
 * Automate [barbarian's Fast Movement](https://www.aonprd.com/ClassDisplay.aspx?ItemName=Barbarian).
 
 # Compatibility and Instructions
-This extension has been tested with [FantasyGrounds Unity](https://www.fantasygrounds.com/home/FantasyGroundsUnity.php) 4.1.13 (2022-01-05).
+This extension has been tested with [FantasyGrounds Unity](https://www.fantasygrounds.com/home/FantasyGroundsUnity.php) 4.3.0 (2022-10-20).
