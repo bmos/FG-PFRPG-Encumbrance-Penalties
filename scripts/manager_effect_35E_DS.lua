@@ -2,6 +2,7 @@
 -- Please see the LICENSE.md file included with this distribution for attribution and copyright information.
 --
 -- luacheck: ignore
+-- stylua: ignore
 -- bmos' list of changes to simplify maintenance:
 -- Removed onInit, parseEffectComp, rebuildParsedEffectComp, applyOngoingDamageAdjustment, checkConditional, and checkConditionalHelper functions
 -- Removed all in EFFECT MANAGER OVERRIDES section
