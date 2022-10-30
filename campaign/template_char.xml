@@ -6,7 +6,7 @@
 -->
 
 <root>
-	<template name="number_charspeed" merge="join">
+	<template name="number_charspeed">
 		<number_chartotal>
 			<modifierfield>speed.temporary</modifierfield>
 			<modifiersize>mini</modifiersize>

@@ -316,6 +316,11 @@ local function calcItemArmorClass_new(nodeChar)
 		nSpeedTotal = 5
 	end
 
+	-- speed cannot be negative
+	if nSpeedTotal < 0 then
+		nSpeedTotal = 0
+	end
+
 	DB.setValue(nodeChar, 'speed.total', 'number', nSpeedTotal)
 	DB.setValue(nodeChar, 'speed.final', 'number', nSpeedTotal)
 end
