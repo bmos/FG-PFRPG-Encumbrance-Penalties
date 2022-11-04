@@ -28,7 +28,7 @@ local function getSpeedMult(nodeChar)
 		EffectManager35EDS.hasEffectCondition(rActor, 'Exhausted')
 		or EffectManager35EDS.hasEffectCondition(rActor, 'Entangled')
 		--	Check if the character is disabled (at zero remaining hp)
-		or (DB.getValue(nodeChar, 'hp.total', 0) == DB.getValue(nodeChar, 'hp.wounds', 0))
+		or ((DB.getValue(nodeChar, 'level', 0) ~= 0) and (DB.getValue(nodeChar, 'hp.total', 0) == DB.getValue(nodeChar, 'hp.wounds', 0)))
 	then
 		nMult = nMult * 0.5
 	end
@@ -317,9 +317,7 @@ local function calcItemArmorClass_new(nodeChar)
 	end
 
 	-- speed cannot be negative
-	if nSpeedTotal < 0 then
-		nSpeedTotal = 0
-	end
+	if nSpeedTotal < 0 then nSpeedTotal = 0 end
 
 	DB.setValue(nodeChar, 'speed.total', 'number', nSpeedTotal)
 	DB.setValue(nodeChar, 'speed.final', 'number', nSpeedTotal)
