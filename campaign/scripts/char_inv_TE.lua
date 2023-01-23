@@ -100,13 +100,13 @@ local function onEncumbranceLimitChanged(nodeChar)
 end
 
 local function onEffectChanged()
-	local rActor = ActorManager.resolveActor(getDatabaseNode().getChild('...'))
+	local rActor = ActorManager.resolveActor(DB.getChild(getDatabaseNode(), '...'))
 	local nodeChar = ActorManager.getCreatureNode(rActor)
 	onEncumbranceLimitChanged(nodeChar)
 end
 
 local function onEffectRemoved()
-	local rActor = ActorManager.resolveActor(getDatabaseNode().getParent())
+	local rActor = ActorManager.resolveActor(DB.getParent(getDatabaseNode()))
 	local nodeChar = ActorManager.getCreatureNode(rActor)
 	onEncumbranceLimitChanged(nodeChar)
 end

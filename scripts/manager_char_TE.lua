@@ -329,19 +329,19 @@ local function updateEncumbrance_new(nodeChar, ...)
 	calcItemArmorClass_new(nodeChar)
 end
 
-local function onHealthChanged(node) calcItemArmorClass_new(node.getParent()) end
+local function onHealthChanged(node) calcItemArmorClass_new(DB.getParent(node)) end
 
-local function onSpeedChanged(node) calcItemArmorClass_new(node.getChild('...')) end
+local function onSpeedChanged(node) calcItemArmorClass_new(DB.getChild(node, '...')) end
 
 ---	This function is called when effect components are changed.
 local function onEffectChanged(node)
-	local rActor = ActorManager.resolveActor(node.getChild('....'))
+	local rActor = ActorManager.resolveActor(DB.getChild(node, '....'))
 	if ActorManager.isPC(rActor) then calcItemArmorClass_new(ActorManager.getCreatureNode(rActor)) end
 end
 
 ---	This function is called when effects are removed.
 local function onEffectRemoved(node)
-	local rActor = ActorManager.resolveActor(node.getChild('..'))
+	local rActor = ActorManager.resolveActor(DB.getChild(node, '..'))
 	if ActorManager.isPC(rActor) then calcItemArmorClass_new(ActorManager.getCreatureNode(rActor)) end
 end
 

@@ -7,7 +7,7 @@ function encumbranceColors()
 	if window.usearmormaxstatbonus.getValue() == 0 then
 		setColor(ColorManager.COLOR_FULL)
 	else
-		local nodeEnc = getDatabaseNode().getParent()
+		local nodeEnc = DB.getParent(getDatabaseNode())
 		local sArmorStat = getName():gsub('armor', '')
 		if DB.getValue(nodeEnc, sArmorStat .. 'fromenc') == DB.getValue(nodeEnc, 'armor' .. sArmorStat) then
 			setColor(ColorManager.COLOR_HEALTH_CRIT_WOUNDS)
