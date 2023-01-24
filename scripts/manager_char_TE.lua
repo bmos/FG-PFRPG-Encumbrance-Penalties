@@ -6,7 +6,7 @@ local function hasSpecialAbility(nodeChar, sSpecAbil)
 	if not nodeChar or not sSpecAbil then return false end
 
 	local sLowerSpecAbil = string.lower(sSpecAbil)
-	for _, vNode in pairs(DB.getChildren(nodeChar, 'specialabilitylist')) do
+	for _, vNode in ipairs(DB.getChildList(nodeChar, 'specialabilitylist')) do
 		local vLowerSpecAbilName = StringManager.trim(DB.getValue(vNode, 'name', ''):lower())
 		if vLowerSpecAbilName and string.find(vLowerSpecAbilName, sLowerSpecAbil, 0) then return true end
 	end
@@ -129,7 +129,7 @@ local function calcItemArmorClass_new(nodeChar)
 	local bArmorLM = false
 	local bArmorH = false
 
-	for _, vNode in pairs(DB.getChildren(nodeChar, 'inventorylist')) do
+	for _, vNode in ipairs(DB.getChildList(nodeChar, 'inventorylist')) do
 		if DB.getValue(vNode, 'carried', 0) == 2 then
 			if ItemManager.isArmor(vNode) then
 				local nFighterLevel, bArmorTraining, bArmorTrainingH, bAdvArmorTraining = armorTraining(nodeChar)

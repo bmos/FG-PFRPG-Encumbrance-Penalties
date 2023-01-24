@@ -32,7 +32,7 @@ function getEffectsByType(rActor, sEffectType, aFilter, rFilterActor, bTargetedO
 	local bTargetSupport = StringManager.isWord(sEffectType, DataCommon.targetableeffectcomps)
 
 	-- Iterate through effects
-	for _, v in pairs(DB.getChildren(ActorManager.getCTNode(rActor), 'effects')) do
+	for _, v in ipairs(DB.getChildList(ActorManager.getCTNode(rActor), 'effects')) do
 		-- Check active
 		local nActive = DB.getValue(v, 'isactive', 0)
 		if nActive ~= 0 then
@@ -345,7 +345,7 @@ function hasEffect(rActor, sEffect, rTarget, bTargetedOnly, bIgnoreEffectTargets
 
 	-- Iterate through each effect
 	local aMatch = {}
-	for _, v in pairs(DB.getChildren(ActorManager.getCTNode(rActor), 'effects')) do
+	for _, v in ipairs(DB.getChildList(ActorManager.getCTNode(rActor), 'effects')) do
 		local nActive = DB.getValue(v, 'isactive', 0)
 		if nActive ~= 0 then
 			-- Parse each effect label
