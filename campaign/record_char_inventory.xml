@@ -64,7 +64,7 @@
 		<playercontrol />
 		<sheetdata>
 			<windowtitlebar name="title">
-				<prefix>char_encumbrance_title</prefix>
+				<resource>char_encumbrance_title</resource>
 			</windowtitlebar>
 			<anchor_title_charsheethelper name="contentanchor" />
 
