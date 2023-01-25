@@ -63,9 +63,9 @@
 		<nodelete />
 		<playercontrol />
 		<sheetdata>
-			<windowtitlebar_char name="title">
+			<windowtitlebar name="title">
 				<prefix>char_encumbrance_title</prefix>
-			</windowtitlebar_char>
+			</windowtitlebar>
 			<anchor_title_charsheethelper name="contentanchor" />
 
 			<frame_char name="encadjframe">
