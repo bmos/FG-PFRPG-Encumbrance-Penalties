@@ -3,9 +3,7 @@
 --
 -- luacheck: globals onStrengthChanged
 
-local function onEncumbranceLimitChanged(nodeChar)
-	CharManagerTE.onEncumbranceLimitChanged(nodeChar)
-end
+local function onEncumbranceLimitChanged(nodeChar) CharManagerTE.onEncumbranceLimitChanged(nodeChar) end
 
 function onStrengthChanged()
 	-- Debug.chat(getDatabaseNode())
