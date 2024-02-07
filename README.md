@@ -1,4 +1,4 @@
-[![Build FG-Usable File](https://github.com/bmos/FG-PFRPG-Encumbrance-Penalties/actions/workflows/create-ext.yml/badge.svg)](https://github.com/bmos/FG-PFRPG-Encumbrance-Penalties/actions/workflows/create-ext.yml) [![Luacheck](https://github.com/bmos/FG-PFRPG-Encumbrance-Penalties/actions/workflows/luacheck.yml/badge.svg)](https://github.com/bmos/FG-PFRPG-Encumbrance-Penalties/actions/workflows/luacheck.yml)
+[![Release Build](https://github.com/bmos/FG-PFRPG-Encumbrance-Penalties/actions/workflows/release.yml/badge.svg)](https://github.com/bmos/FG-PFRPG-Encumbrance-Penalties/actions/workflows/release.yml) [![Luacheck](https://github.com/bmos/FG-PFRPG-Encumbrance-Penalties/actions/workflows/luacheck.yml/badge.svg)](https://github.com/bmos/FG-PFRPG-Encumbrance-Penalties/actions/workflows/luacheck.yml)
 
 # Encumbrance Penalties
 This extension enhances functionality related to carrying capacity and weight/armor encumbrance.
