@@ -8,8 +8,8 @@ function encumbranceColors()
 		setColor(ColorManager.COLOR_FULL)
 	else
 		local nodeEnc = DB.getParent(getDatabaseNode())
-		local sArmorStat = getName():gsub('armor', '')
-		if DB.getValue(nodeEnc, sArmorStat .. 'fromenc') == DB.getValue(nodeEnc, 'armor' .. sArmorStat) then
+		local sArmorStat = getName():gsub("armor", "")
+		if DB.getValue(nodeEnc, sArmorStat .. "fromenc") == DB.getValue(nodeEnc, "armor" .. sArmorStat) then
 			setColor(ColorManager.COLOR_HEALTH_CRIT_WOUNDS)
 		else
 			setColor(ColorManager.COLOR_FULL)
@@ -18,11 +18,15 @@ function encumbranceColors()
 end
 
 function onValueChanged(...)
-	if super and super.onValueChanged then super.onValueChanged(...) end
+	if super and super.onValueChanged then
+		super.onValueChanged(...)
+	end
 	encumbranceColors()
 end
 
 function onInit()
-	if super and super.onInit then super.onInit() end
+	if super and super.onInit then
+		super.onInit()
+	end
 	onValueChanged()
 end
