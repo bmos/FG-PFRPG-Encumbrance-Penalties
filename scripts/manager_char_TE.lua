@@ -422,7 +422,9 @@ local function calcItemArmorClass_new(nodeChar)
 
 	local nSpeedArmor = 0
 
-	if not CharManager.hasTrait(nodeChar, "Slow and Steady") then
+	local bSlowSteady = CharManager.hasTrait(nodeChar, "Slow and Steady")
+
+	if not bSlowSteady then
 		if (nSpeedBase >= 30) and (nMainSpeed30 > 0) then
 			nSpeedArmor = nMainSpeed30 - 30
 		elseif (nSpeedBase < 30) and (nMainSpeed20 > 0) then
@@ -457,10 +459,12 @@ local function calcItemArmorClass_new(nodeChar)
 	) * getSpeedMult(nodeChar)
 
 	-- speed limits for overloaded characters
-	if nEncumbranceLevel == 4 then
-		nSpeedTotal = 0
-	elseif (nEncumbranceLevel == 3) and (nSpeedTotal > 5) then
-		nSpeedTotal = 5
+	if not bSlowSteady then
+		if nEncumbranceLevel == 4 then
+			nSpeedTotal = 0
+		elseif (nEncumbranceLevel == 3) and (nSpeedTotal > 5) then
+			nSpeedTotal = 5
+		end
 	end
 
 	-- speed cannot be negative
