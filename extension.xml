@@ -6,7 +6,7 @@
 	<properties>
 		<name>Feature: Encumbrance Penalties</name>
 		<version>1.14</version>
-		<author>bmos (Wil Thieme)</author>
+		<author>bmos (Ramona T)</author>
 		<description>rThis extension applies encumbrance penalties, weighs PC coins, calculates character wealth, automates bypassing weight for bag of holding contents, counts the capacity of some containers, offers metric unit conversion, and recalculates carrying capacity and speed, taking into account various effects.</description>
 		<ruleset>
 			<name>3.5E</name>
